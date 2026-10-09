@@ -49,7 +49,7 @@ Measured in MirrorLab on one PC, solo, frame rate uncapped (empty hub: about 240
 | Baked tiles | 200-300 fps | < 1 ms |
 | Screen-space floor/ceiling materials | 150-220 fps | ~1-3 ms (engine reflections, view dependent) |
 
-To save cost: use `Depth` 1 where a tunnel is not needed, avoid many live mirrors visible at once, and use baked tiles or materials for decoration. `Depth` can go up to 10, but each level is another full render of the scene while the mirror is visible and the deep images become tiny; 3 is the recommended maximum and the default (deeper levels are allowed, not tested, and not recommended). `Resolution` (default 1) trades sharpness for cost.
+To save cost: keep the default `Depth` 1 where a tunnel is not needed, avoid many live mirrors visible at once, and use baked tiles or materials for decoration. Partnered mirrors can use `Depth` 3 for a tunnel. `Depth` can go up to 10, but each level is another full render of the scene while the mirror is visible and the deep images become tiny; values above 3 are allowed, not tested, and not recommended. `Resolution` (default 1) trades sharpness for cost.
 
 ## Using MirrorKit in your map
 
@@ -71,7 +71,7 @@ To save cost: use `Depth` 1 where a tunnel is not needed, avoid many live mirror
 1. Drag `BP_CaptureMirror` (or a preset) into the level. The mirror's **local +X direction points out of its reflective face**; the face is at the actor's origin. Switch the viewport transform gizmo from **World** to **Local** to see this direction: in World mode the red X arrow stays aligned to the world even when the mirror rotates. Turn a wall mirror with **Rotation Z (Yaw)**, not Rotation X.
 2. Size it with the actor **scale**: Y x 100 = width in cm, Z x 100 = height in cm, keep X = 1. Example: scale (1, 12, 6) is a 12 m x 6 m wall mirror. For a floor mirror, rotate it to face up.
 3. **Facing mirrors:** set each one's `Partner` to the other to get the tunnel. A single mirror needs no partner.
-4. **Leave empty space behind the face: `Depth` + 3 cm (6 cm at the default `Depth` 3).** The reflection layers live there; a wall or floor flush with the mirror flickers in the reflection. Mount mirrors in front of walls, not inside them.
+4. **Leave empty space behind the face: `Depth` + 3 cm (4 cm at the default `Depth` 1; 6 cm at `Depth` 3).** The reflection layers live there; a wall or floor flush with the mirror flickers in the reflection. Mount mirrors in front of walls, not inside them.
 5. **Mirrors are solid:** the backing plate blocks players and weapons (except `Tiled` mirrors, where the tiles collide). The back of a one-sided mirror shows plain metal; use `TwoSided` for a free-standing mirror wall, or a real wall behind it.  Mirrors can be used as walls as well.
 6. Nothing else to place. The stand-ins that draw your own body in reflections (`BP_MirrorDouble*`) are spawned by the mirrors when the game starts; do not place them.
 
@@ -80,7 +80,7 @@ To save cost: use `Depth` 1 where a tunnel is not needed, avoid many live mirror
 | Setting | Default | What it does |
 | --- | --- | --- |
 | `Partner` | (itself) | Facing mirror for the tunnel effect |
-| `Depth` | 3 | Reflection levels, 1-10 (3 recommended; deeper not recommended). Each level costs one extra render while visible |
+| `Depth` | 1 | Reflection levels, 1-10. Use 1 for a single mirror and usually 3 for a partnered tunnel; values above 3 are not recommended. Each level costs one extra render while visible |
 | `HeadSource` | 3 | Your body in the reflection: 3 full body; 1 head and torso only (stiff head); 2 stretching head; 0 headless |
 | `HideBody` | off | Ghost: hide your character from this mirror |
 | `TwoSided` | off | Also reflect on the back face |
