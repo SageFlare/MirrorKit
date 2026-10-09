@@ -6,10 +6,11 @@ the Blueprint graph-authoring operations needed by `MirrorLab/scripts/create_map
 
 It adds `unreal.AgGraphLibrary`, whose helpers can:
 
-- create, clear and compile Blueprint event graphs;
+- create, select, clear and compile Blueprint event and Construction Script graphs;
 - add events, function calls, variables, branches, casts, macros and Spawn Actor nodes;
 - connect graph pins and set their defaults;
 - add Blueprint components and edit component templates;
+- configure selection-only editor guide components that do not affect navigation;
 - export Blueprint graphs as text for diagnostics;
 - build reflection captures and capture a cubemap into an asset; and
 - connect the material Pixel Depth Offset input, which UE 4.25 Python does not expose.

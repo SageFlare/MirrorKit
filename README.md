@@ -75,6 +75,15 @@ To save cost: keep the default `Depth` 1 where a tunnel is not needed, avoid man
 5. **Mirrors are solid:** the backing plate blocks players and weapons (except `Tiled` mirrors, where the tiles collide). The back of a one-sided mirror shows plain metal; use `TwoSided` for a free-standing mirror wall, or a real wall behind it.  Mirrors can be used as walls as well.
 6. Nothing else to place. The stand-ins that draw your own body in reflections (`BP_MirrorDouble*`) are spawned by the mirrors when the game starts; do not place them.
 
+### Spacing safeguards
+
+Two different clearances matter:
+
+- **Internal two-sided spacing is automatic.** `TwinGap` is clamped to at least `Depth + 4` by the Construction Script and again at runtime. Increasing `Depth` therefore moves the generated back face far enough away automatically. If an entered gap is too small, the Details value is raised and UE prints a warning. `TwinGapWasAdjusted` records that correction.
+- **External map clearance is not automatic.** MirrorKit cannot move your walls, floors or props. Leave `Depth + 3 cm` clear behind the mirror face along its **local -X axis**. Selecting a mirror in the editor shows an orange wireframe `ClearanceGuide` covering this required volume; keep blocking geometry outside it. The guide has no collision and is hidden in game.
+
+`Depth` is clamped to the supported range 1-10. These safeguards prevent internal face overlap and expose external placement mistakes, but they cannot automatically relocate map geometry.
+
 ### Mirror settings
 
 | Setting | Default | What it does |

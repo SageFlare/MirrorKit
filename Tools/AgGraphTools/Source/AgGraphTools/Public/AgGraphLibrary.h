@@ -9,16 +9,33 @@ class UActorComponent;
 class UTextureCube;
 class UMaterial;
 class UMaterialExpression;
+class UShapeComponent;
 
 /**
  * Editor-only Blueprint graph authoring for editor Python (UE 4.25 exposes no node API).
- * Nodes are addressed by their object name inside the event graph, as returned by the Add* calls.
+ * Nodes are addressed by their object name inside the selected graph, as returned by the Add* calls.
  */
 UCLASS()
 class AGGRAPHTOOLS_API UAgGraphLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
+	/** Selects the event graph (false) or User Construction Script (true) for subsequent node calls. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool UseConstructionScript(UBlueprint* Blueprint, bool bUseConstructionScript);
+
+	/** Removes every non-entry node from the User Construction Script. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static void ClearConstructionScript(UBlueprint* Blueprint);
+
+	/** Returns the existing User Construction Script entry node name. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static FString GetConstructionScriptEntryNode(UBlueprint* Blueprint);
+
+	/** Marks a shape as an editor visualization drawn only while its actor is selected. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool ConfigureEditorGuide(UShapeComponent* Component);
+
 	/** Removes every node from the event graph, including ghost default events. */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static void ClearEventGraph(UBlueprint* Blueprint);

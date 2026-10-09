@@ -6,6 +6,7 @@
 #include "EdGraph/EdGraph.h"
 #include "EdGraphSchema_K2.h"
 #include "K2Node_Event.h"
+#include "K2Node_FunctionEntry.h"
 #include "K2Node_CallFunction.h"
 #include "K2Node_VariableGet.h"
 #include "K2Node_VariableSet.h"
@@ -27,6 +28,7 @@
 #include "ShaderCompiler.h"
 #include "Engine/SceneCaptureCube.h"
 #include "Components/SceneCaptureComponentCube.h"
+#include "Components/ShapeComponent.h"
 #include "Engine/TextureRenderTargetCube.h"
 #include "Engine/TextureCube.h"
 #include "AssetRegistryModule.h"
@@ -34,14 +36,23 @@
 
 namespace
 {
+	TSet<const UBlueprint*> ConstructionTargets;
+
 	UEdGraph* EventGraph(UBlueprint* Blueprint)
 	{
 		return Blueprint ? FBlueprintEditorUtils::FindEventGraph(Blueprint) : nullptr;
 	}
 
+	UEdGraph* TargetGraph(UBlueprint* Blueprint)
+	{
+		if (Blueprint && ConstructionTargets.Contains(Blueprint))
+			return FBlueprintEditorUtils::FindUserConstructionScript(Blueprint);
+		return EventGraph(Blueprint);
+	}
+
 	UEdGraphNode* FindNode(UBlueprint* Blueprint, const FString& Name)
 	{
-		if (UEdGraph* Graph = EventGraph(Blueprint))
+		if (UEdGraph* Graph = TargetGraph(Blueprint))
 		{
 			for (UEdGraphNode* Node : Graph->Nodes)
 			{
@@ -58,10 +69,10 @@ namespace
 	template <typename T, typename F>
 	FString Place(UBlueprint* Blueprint, int32 X, int32 Y, F&& Setup)
 	{
-		UEdGraph* Graph = EventGraph(Blueprint);
+		UEdGraph* Graph = TargetGraph(Blueprint);
 		if (!Graph)
 		{
-			UE_LOG(LogTemp, Error, TEXT("AgGraph: no event graph"));
+			UE_LOG(LogTemp, Error, TEXT("AgGraph: no selected graph"));
 			return FString();
 		}
 		FGraphNodeCreator<T> Creator(*Graph);
@@ -78,6 +89,54 @@ namespace
 	{
 		return Blueprint && Blueprint->SimpleConstructionScript ? Blueprint->SimpleConstructionScript->FindSCSNode(Name) : nullptr;
 	}
+}
+
+bool UAgGraphLibrary::UseConstructionScript(UBlueprint* Blueprint, bool bUseConstructionScript)
+{
+	if (!Blueprint || (bUseConstructionScript && !FBlueprintEditorUtils::FindUserConstructionScript(Blueprint)))
+		return false;
+	if (bUseConstructionScript)
+		ConstructionTargets.Add(Blueprint);
+	else
+		ConstructionTargets.Remove(Blueprint);
+	return true;
+}
+
+void UAgGraphLibrary::ClearConstructionScript(UBlueprint* Blueprint)
+{
+	if (UEdGraph* Graph = Blueprint ? FBlueprintEditorUtils::FindUserConstructionScript(Blueprint) : nullptr)
+	{
+		TArray<UEdGraphNode*> Nodes = Graph->Nodes;
+		for (UEdGraphNode* Node : Nodes)
+		{
+			if (Node && !Node->IsA<UK2Node_FunctionEntry>())
+				FBlueprintEditorUtils::RemoveNode(Blueprint, Node, true);
+		}
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+	}
+}
+
+FString UAgGraphLibrary::GetConstructionScriptEntryNode(UBlueprint* Blueprint)
+{
+	if (UEdGraph* Graph = Blueprint ? FBlueprintEditorUtils::FindUserConstructionScript(Blueprint) : nullptr)
+	{
+		for (UEdGraphNode* Node : Graph->Nodes)
+		{
+			if (Node && Node->IsA<UK2Node_FunctionEntry>())
+				return Node->GetName();
+		}
+	}
+	return FString();
+}
+
+bool UAgGraphLibrary::ConfigureEditorGuide(UShapeComponent* Component)
+{
+	if (!Component)
+		return false;
+	Component->bDrawOnlyIfSelected = true;
+	Component->SetIsVisualizationComponent(true);
+	Component->SetCanEverAffectNavigation(false);
+	return true;
 }
 
 void UAgGraphLibrary::ClearEventGraph(UBlueprint* Blueprint)
