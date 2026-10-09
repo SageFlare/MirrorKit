@@ -85,7 +85,7 @@ To save cost: keep the default `Depth` 1 where a tunnel is not needed, avoid man
 | `HeadSource` | 3 | Your body in the reflection: 3 full body; 1 head and torso only (stiff head); 2 stretching head; 0 headless |
 | `HideBody` | off | Ghost: hide your character from this mirror |
 | `TwoSided` | off | Also reflect on the back face |
-| `TwinGap` | 6 cm | Distance between the two faces of a two-sided mirror (never less than `Depth` + 3). Use 2 x (`Depth` + 2) or more with the funhouse look (10 at `Depth` 3) |
+| `TwinGap` | 6 cm | Distance between the two faces of a two-sided mirror (runtime minimum `Depth` + 4, or 7 cm at `Depth` 3). Use 2 x (`Depth` + 2) or more with the funhouse look (10 at `Depth` 3) |
 | `BackPartner` | none | Partner for the back face |
 | `BackPartnerBackFace` | off | Make this mirror's back face target `BackPartner`'s back face instead of its front |
 | `PortalMode` | on | Off = the old screen-mapped look (funhouse) |
