@@ -68,7 +68,7 @@ To save cost: use `Depth` 1 where a tunnel is not needed, avoid many live mirror
 
 ### Placing a live mirror
 
-1. Drag `BP_CaptureMirror` (or a preset) into the level. The **arrow (+X) points out of the mirror's face**; the face is at the actor's origin.
+1. Drag `BP_CaptureMirror` (or a preset) into the level. The mirror's **local +X direction points out of its reflective face**; the face is at the actor's origin. Switch the viewport transform gizmo from **World** to **Local** to see this direction: in World mode the red X arrow stays aligned to the world even when the mirror rotates. Turn a wall mirror with **Rotation Z (Yaw)**, not Rotation X.
 2. Size it with the actor **scale**: Y x 100 = width in cm, Z x 100 = height in cm, keep X = 1. Example: scale (1, 12, 6) is a 12 m x 6 m wall mirror. For a floor mirror, rotate it to face up.
 3. **Facing mirrors:** set each one's `Partner` to the other to get the tunnel. A single mirror needs no partner.
 4. **Leave empty space behind the face: `Depth` + 3 cm (6 cm at the default `Depth` 3).** The reflection layers live there; a wall or floor flush with the mirror flickers in the reflection. Mount mirrors in front of walls, not inside them.
