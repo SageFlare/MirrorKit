@@ -8,7 +8,7 @@ Version 0.3.0. Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK
 
 | You are | Install | Where |
 | --- | --- | --- |
-| **Player** joining a server | `MirrorKit.pak` **and** the map's own PAK | Through the [Unchained Launcher](https://github.com/Chiv2-Community/UnchainedLauncher) Mod Manager, or copy both into `Chivalry 2/TBL/Content/Paks/`. Launch in Unchained multiplayer mode. |
+| **Player** joining the map | `MirrorKit.pak` **and** the map's own PAK | Through the [Unchained Launcher](https://github.com/Chiv2-Community/UnchainedLauncher) Mod Manager, or copy both into `Chivalry 2/TBL/Content/Paks/`. Launch in Unchained multiplayer mode. |
 | **Server host** | `MirrorKit.pak` **and** the map's PAK | The server's `TBL/Content/Paks/` (or install both mods in the launcher before "Launch Headless"). The server does no mirror work; it only needs the files so the map's mirror actors load. |
 | **Mapper** (building a map) | `MirrorKit_Source.zip` and `MirrorKit.pak` | Source: see [Using MirrorKit in your map](#using-mirrorkit-in-your-map). PAK: your game's Paks folder, to test your map. |
 
