@@ -80,12 +80,14 @@ To save cost: keep the default `Depth` 1 where a tunnel is not needed, avoid man
 | Setting | Default | What it does |
 | --- | --- | --- |
 | `Partner` | (itself) | Facing mirror for the tunnel effect |
+| `PartnerBackFace` | off | Target `Partner`'s generated back face instead of its front. The target must have `TwoSided` enabled |
 | `Depth` | 1 | Reflection levels, 1-10. Use 1 for a single mirror and usually 3 for a partnered tunnel; values above 3 are not recommended. Each level costs one extra render while visible |
 | `HeadSource` | 3 | Your body in the reflection: 3 full body; 1 head and torso only (stiff head); 2 stretching head; 0 headless |
 | `HideBody` | off | Ghost: hide your character from this mirror |
 | `TwoSided` | off | Also reflect on the back face |
 | `TwinGap` | 6 cm | Distance between the two faces of a two-sided mirror (never less than `Depth` + 3). Use 2 x (`Depth` + 2) or more with the funhouse look (10 at `Depth` 3) |
 | `BackPartner` | none | Partner for the back face |
+| `BackPartnerBackFace` | off | Make this mirror's back face target `BackPartner`'s back face instead of its front |
 | `PortalMode` | on | Off = the old screen-mapped look (funhouse) |
 | `MatchViewFov` | on | Off = funhouse magnification |
 | `FitVisible` | on | Renders only the visible part of the mirror (sharper up close) |
@@ -118,6 +120,7 @@ Drag in `BP_MirrorTile` (snow wind on break) or `BP_MirrorTile_NoSnow` and scale
 ### Partners: angles and more than two mirrors
 
 - **Angled partners:** partnered mirrors do not have to be parallel; each reflection is computed across each mirror's own plane.
+- **Targeting a back face:** enable `PartnerBackFace` beside `Partner`. For a connection originating from a two-sided mirror's back, use `BackPartner` and `BackPartnerBackFace`. Example: Funhouse front to TwoSided back uses `Funhouse.Partner = TwoSided`, `Funhouse.PartnerBackFace = on`, `TwoSided.BackPartner = Funhouse`, and `TwoSided.BackPartnerBackFace = off`.
 - **One partner per mirror.** Several mirrors facing each other can be chained (A -> B -> C -> A): each mirror gets correct deeper reflections only into its partner; a non-partner mirror seen inside a reflection shows its own first-level image (plausible, but not geometrically exact).
 
 ## Online play
