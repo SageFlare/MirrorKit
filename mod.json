@@ -1,0 +1,17 @@
+{
+  "repo_url": "https://github.com/SageFlare/MirrorKit",
+  "name": "MirrorKit",
+  "description": "Reusable live reflections, mirror variants, shiny surfaces and breakable mirror tiles for Chivalry 2 Unchained maps.",
+  "mod_type": "Shared",
+  "authors": [
+    "SageFlare"
+  ],
+  "dependencies": [],
+  "tags": [
+    "Library"
+  ],
+  "maps": [],
+  "options": {
+    "actor_mod": true
+  }
+}
