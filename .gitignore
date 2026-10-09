@@ -1,0 +1,22 @@
+# Build and release output
+build/
+dist/
+Saved/
+DerivedDataCache/
+
+# Generated Unreal and IDE output
+**/Binaries/
+**/Intermediate/
+.vs/
+.idea/
+.vscode/
+
+# Python and local diagnostics
+__pycache__/
+*.py[cod]
+*.log
+
+# Operating-system files
+Thumbs.db
+Desktop.ini
+.DS_Store
