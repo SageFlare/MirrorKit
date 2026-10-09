@@ -142,6 +142,18 @@ Each player's game renders mirrors from their own camera, so everyone sees a cor
 | `Meshes/` | `SM_MirrorTile`, `SM_MirrorTile_Cracked`; internal: `SM_MKCube`, `SM_MirrorTileCore` |
 | `Textures/` | `TC_MK_DefaultEnvironment` (default cubemap) |
 
+## Developer tool: AgGraphTools
+
+[`Tools/AgGraphTools`](Tools/AgGraphTools) is the custom editor-only UE 4.25 plugin used by
+MirrorLab's generator to create MirrorKit's Blueprint graphs and cubemaps from Python. It exposes
+`unreal.AgGraphLibrary` for graph nodes, pins, variables, components, compilation, graph export and
+reflection-capture helpers that UE 4.25 Python does not provide.
+
+You do **not** need it to install MirrorKit, place or edit the supplied assets, cook a map that uses
+them, play, or host a server. Maintainers only need it when running `create_map.py` to regenerate the
+generated MirrorKit and MirrorLab assets. See the tool's [README](Tools/AgGraphTools/README.md) for
+installation and usage.
+
 Files in this release: `MirrorKit.pak` (+ `.sha256`), `MirrorKit_Source.zip` (`Content/`, README, manifest, license and third-party notices), `README.md`.
 
 ## License

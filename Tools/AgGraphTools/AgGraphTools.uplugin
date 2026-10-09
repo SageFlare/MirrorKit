@@ -1,0 +1,17 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1",
+	"FriendlyName": "Ag Graph Tools",
+	"Description": "Editor-only helpers that let editor Python add and wire Blueprint graph nodes and SCS components; UE 4.25 Python lacks this.",
+	"Category": "Editor",
+	"EnabledByDefault": true,
+	"CanContainContent": false,
+	"Modules": [
+		{
+			"Name": "AgGraphTools",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}
