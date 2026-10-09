@@ -14,7 +14,7 @@ Version 0.3.0. Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK
 
 Without `MirrorKit.pak`, a map that uses it still loads if it was built correctly (see below), but every mirror, tile and stand-in is missing.
 
-Unchained `mod.json` for MirrorKit: `"mod_type": "Shared"`, `"tags": ["Library"]`. A map that uses MirrorKit should list it under `"dependencies"`.
+Unchained `mod.json` for MirrorKit: `"mod_type": "Shared"`, `"tags": ["Assets"]`. A map that uses MirrorKit should list it under `"dependencies"`.
 
 ## The mirrors
 
