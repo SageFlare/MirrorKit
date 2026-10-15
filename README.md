@@ -167,7 +167,7 @@ Each frame, a mirror goes through four steps:
 
 Independent mirrors show other mirrors' images inside their reflection. Those images were rendered for your own viewpoint, so mirror-in-mirror repetitions are plausible but not geometrically exact. Partners give exact nested reflections, at the cost of one render per level.
 
-`DisableReflectionAO` works through a stored post-process override (AO intensity 0) whose blend weight the checkbox raises at start-up. Two-sided mirrors copy their settings, including both 0.4.x settings, to the generated back face.
+`DisableReflectionAO` works through a stored post-process override (AO intensity 0) whose blend weight the checkbox raises at start-up. Two-sided mirrors copy their settings, including `OffscreenUpdateEveryNFrames` and `DisableReflectionAO`, to the generated back face.
 
 A mirror's size and settings are read when play starts. Do not resize live mirrors at runtime.
 
@@ -247,18 +247,9 @@ Release files: `MirrorKit.pak` (+ `.sha256`), `MirrorKit_Source.zip` (`Content/`
 
 | Version | Changes |
 | --- | --- |
-| 0.5.0 | README rewritten; map-design guide (`docs/MAP-OPTIMIZATION.md`); release of 0.3.1-0.4.1 below |
-| 0.4.1 | `DisableReflectionAO`; two-sided back faces inherit the 0.4.x settings |
-| 0.4.0 | `OffscreenUpdateEveryNFrames` |
-| 0.3.9 | `CaptureCount` / `TelemetryMark` diagnostics |
-| 0.3.8 | Face-distance tests only when a feature uses them; cached size and centre distance |
-| 0.3.7 | Exact update-slot formula; centre-first face-distance test |
-| 0.3.6 | Distances measured to the nearest point of the mirror face |
-| 0.3.5 | Editor comment blocks |
-| 0.3.4 | Bounded-loop cleanup (behaviour verified identical) |
-| 0.3.3 | Shared Blueprint functions |
-| 0.3.2 | Cheaper per-frame maintenance (checks before hidden-list work, cached stand-ins) |
-| 0.3.1 | Independent mirrors: no pairing needed; one capture per face |
+| 0.5.0 | Performance and usability release (developed as internal builds after 0.4.0):<br>• Independent mirrors: no pairing needed; one capture per face.<br>• Cheaper per-frame work: checks before hidden-list maintenance, cached stand-ins, shared Blueprint functions, bounded loops (behaviour verified identical) and editor comment blocks.<br>• Distances measured to the nearest point of the mirror face, centre-first and only when a feature uses them.<br>• Exact update-slot formula `(FrameCounter + phase) % N`.<br>• New settings `OffscreenUpdateEveryNFrames` and `DisableReflectionAO`; two-sided back faces inherit them.<br>• `CaptureCount` / `TelemetryMark` diagnostics.<br>• README rewritten; map-design guide `docs/MAP-OPTIMIZATION.md`. |
+| 0.4.0 | Front/back partner targeting for two-sided mirrors; spacing safeguards (`Depth` 1-10, `TwinGap` minimum, clearance guide); default depth 1 |
+| 0.3.0 | First public release |
 
 ## License
 

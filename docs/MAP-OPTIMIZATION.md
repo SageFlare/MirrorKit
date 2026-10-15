@@ -58,13 +58,13 @@ A wall built from several mirror pieces captures once per piece. One mirror cove
 | Setting | Effect measured | Visual cost | Recommendation |
 | --- | --- | --- | --- |
 | `Resolution` 0.5 → 0.35 | about +3% (8 FPS walking) after the steps above | softer reflections | 0.5 is a good default; drop only if GPU-bound with many mirrors |
-| `DisableReflectionAO` | about −1 ms standing in early tests (every-frame updates); overlaps with resolution | not noticeable in mirrors | tick it on mirror-heavy maps (0.4.1+) |
+| `DisableReflectionAO` | about −1 ms standing in early tests (every-frame updates); overlaps with resolution | not noticeable in mirrors | tick it on mirror-heavy maps (0.5.0+) |
 | `CaptureDistance` 15 m | −1.75 ms walking | distant mirrors visibly **freeze** | prefer staggering and merging; keep the default 25 m unless the layout hides distant mirrors |
 | `OffscreenUpdateEveryNFrames` 0 | +11 FPS walking, +21 standing in a corner-heavy maze | reflections of mirrors outside your view stop updating inside other mirrors | good for mirror-in-mirror heavy layouts; `4` gave little |
 | `MaxViewDistance` | small (+6-9 FPS at 25-15 m from a ~40 FPS baseline, older kit) | removes distant geometry from reflections | rarely worth it in closed layouts |
 | `Depth` above 1 (partners) | each level is another full render | infinite-tunnel effect | use only where the effect is the point |
 
-`CaptureDistance`, `DistanceStaggerStart` and `DistanceThrottleStart` measure to the nearest point of the mirror face (0.3.6+), so long mirrors stay live near their ends.
+`CaptureDistance`, `DistanceStaggerStart` and `DistanceThrottleStart` measure to the nearest point of the mirror face (0.5.0+), so long mirrors stay live near their ends.
 
 ## 5. Layout habits
 
@@ -77,7 +77,7 @@ A wall built from several mirror pieces captures once per piece. One mirror cove
 
 - **Map:** the MirrorMaze test map (463 mirror pieces, 81 point lights), one PC, solo, frame-rate cap off.
 - **Recording:** NVIDIA App performance logs. Each case is recorded as 30 s standing at spawn plus one fixed walking route, repeated in alternating order (2-3 rounds).
-- **Telemetry:** captures per frame come from an in-game telemetry actor reading each mirror's `CaptureCount` (0.3.9+). See `mods/MirrorMazeRenderTests` in the development workspace. Absolute FPS differs per PC; use the relative changes.
+- **Telemetry:** captures per frame come from an in-game telemetry actor reading each mirror's `CaptureCount` (0.5.0+). See `mods/MirrorMazeRenderTests` in the development workspace. Absolute FPS differs per PC; use the relative changes.
 
 | Step (cumulative, walking) | FPS |
 | --- | --- |
