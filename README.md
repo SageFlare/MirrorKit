@@ -85,6 +85,8 @@ Measured in MirrorLab on one PC, solo, frame rate uncapped (empty hub: about 240
 | Baked tiles | 200-300 fps | < 1 ms |
 | Screen-space floor/ceiling materials | 150-220 fps | ~1-3 ms (engine reflections, view dependent) |
 
+**Designing a map with many mirrors?** Read [Designing maps for mirror performance](docs/MAP-OPTIMIZATION.md). It has measured guidance on baked lighting (the biggest single gain: about +23-31% FPS in the test maze, because every mirror capture otherwise recalculates movable lights), using fewer and longer mirrors, staggered updates and the settings below.
+
 ### Performance controls
 
 Live mirrors render the scene again for every active reflection level. The following settings reduce that work, with different visual tradeoffs:
