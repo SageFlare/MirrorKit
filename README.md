@@ -2,7 +2,7 @@
 
 Mirrors for Chivalry 2 Unchained maps: live reflections that show players, cheap shiny surfaces and breakable mirror tiles. MirrorKit is a **library**: it adds no map by itself. Maps use its assets and require it to be installed.
 
-Version 0.3.7 (exact update-slot formula; cheaper face-distance test). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
+Version 0.3.8 (face-distance checks only when a feature uses them). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
 
 ## What you need
 
@@ -50,6 +50,8 @@ Explicit partners remain available for the existing calculated nested-view metho
 ### Face distance (0.3.6)
 
 `CaptureDistance`, `DistanceStaggerStart` and `DistanceThrottleStart` measure from the camera to the **nearest point of the mirror face**, not to the mirror's centre. In front of the mirror this is the straight-line distance to the glass; to the side of it, the distance to the closest edge. Wide mirrors therefore stay live while you stand near one end or walk along the face, where 0.3.5 measured to the centre and could freeze a long wall at about half its width closer than the setting. A viewer exactly in the mirror's plane, or behind it, still never captures. Since 0.3.7 each test first uses the centre distance: the face distance is never larger than it, and never smaller than the centre distance minus half the mirror's diagonal. A mirror whose centre is already inside the limit, or farther than the limit plus half its diagonal, is decided from the centre distance alone; only mirrors in between compute the exact nearest point (clamp the camera's offset to the face rectangle along the mirror's right and up axes). `CaptureDistance` captures strictly inside the limit; distance stagger and throttle apply at or beyond their start distance.
+
+Since 0.3.8 the centre distance is measured once per frame and the mirror's half diagonal once at BeginPlay. Stagger and throttle distance tests run only when `StaggerMode` is `Distance` or `DistanceThrottle` is on, so a mirror using neither pays one distance per frame (as before 0.3.6). A mirror's size is read when play starts; do not resize live mirrors at runtime (render targets, back faces and the distance cache are all set up at BeginPlay).
 
 ### Update slots (0.3.7)
 
