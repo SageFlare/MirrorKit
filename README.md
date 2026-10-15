@@ -2,7 +2,7 @@
 
 Mirrors for Chivalry 2 Unchained maps: live reflections that show players, cheap shiny surfaces and breakable mirror tiles. MirrorKit is a **library**: it adds no map by itself. Maps use its assets and require it to be installed.
 
-Version 0.3.9 (capture counter for optional telemetry). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
+Version 0.4.0 (optional slower updates for mirrors outside the player's view). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
 
 ## What you need
 
@@ -56,6 +56,16 @@ Since 0.3.8 the centre distance is measured once per frame and the mirror's half
 ### Update slots (0.3.7)
 
 Each tick increments `FrameCounter`; a capture is due when `(FrameCounter + phase) % N == 0`, where `N` is `UpdateEveryNFrames` (or `FarUpdateEveryNFrames` when throttled) and `phase` is 0 unless staggered. Staggered mirrors use `phase = |round(X + 3Y + 7Z)| % N` from the actor location. Versions 0.3.4-0.3.6 evaluated the counter one frame ahead (kept then for exact equivalence with earlier builds); 0.3.7 removes that offset. Update frequency, staggering and cost are unchanged; every mirror simply updates one frame later in its cycle.
+
+### Off-screen updates (0.4.0)
+
+A mirror can stay live while you cannot see it directly, because it appears inside another mirror's reflection (for example two mirrors meeting in a corner). `OffscreenUpdateEveryNFrames` controls those mirrors:
+
+- `1` (default): no change; off-screen mirrors keep their normal cadence.
+- `N > 1`: while the whole mirror face is outside your view, it updates every N frames (or its normal interval, if that is already longer).
+- `0` or lower: while the whole face is outside your view, it stops updating and keeps its last image; it resumes as soon as any part enters your view.
+
+"Outside your view" is a frustum test on the four face corners against the rendered view's field of view with a 15% margin, so mirrors at the screen edge still count as visible. A mirror inside your view but hidden behind a wall still counts as visible (Unreal does not report main-view occlusion to Blueprints). The test runs only when the setting is not 1.
 
 ### Diagnostics (0.3.9)
 
@@ -156,6 +166,7 @@ Two different clearances matter:
 | `DistanceThrottle` | off | Use `FarUpdateEveryNFrames` instead of the base interval beyond `DistanceThrottleStart` |
 | `DistanceThrottleStart` | 1500 cm | Face distance at which optional throttling begins |
 | `FarUpdateEveryNFrames` | 4 | Distant capture interval when throttling is enabled. Values `1` or lower still mean every frame |
+| `OffscreenUpdateEveryNFrames` | 1 | Update interval while the whole face is outside your view: `1` unchanged, `N > 1` every N frames, `0` frozen. See [Off-screen updates](#off-screen-updates-040) |
 | `VisibilityTolerance` | 0.2 s | How recently this mirror's or its partner's panel must have been rendered to keep captures active. Lower values stop off-screen work sooner |
 
 ### Breakable live mirror tiles

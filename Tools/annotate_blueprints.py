@@ -17,6 +17,7 @@ DESCRIPTIONS = {
  'ResolvePartner': 'Optional explicit partner\nResolve a valid distinct partner/back face. Unassigned or self references use one reflection level.',
  'AdvanceCaptureSchedule': 'Cadence, stagger and distance throttle\nIncrement FrameCounter; due when (FrameCounter + phase) % interval == 0.',
  'CheckCaptureEligibility': 'Capture gating\nCheck viewer validity, face distance, front-facing and recent-render/tile conditions before capture work.',
+ 'UpdateOffscreenFlag': 'Off-screen test\nSet Offscreen when the whole face is outside the player view frustum; used only when OffscreenUpdateEveryNFrames is not 1.',
  'IsWithinFaceDistance': 'Centre-first distance test\nDecide from the centre distance when possible; compute the exact face distance only near the limit.',
  'DistanceToMirrorFace': 'Face distance\nDistance from a point to the nearest point of the mirror face rectangle; used by capture distance, stagger and throttle.',
  'ReflectViewAcrossPlane': 'Reflection geometry\nReflect the supplied view across the mirror plane.',
