@@ -25,6 +25,7 @@ Movable lights are recalculated in **every** view, so each mirror capture redoes
 - Shadows on static lights are free at runtime. Turning them on gives real dark corners and contact shadows.
 - Large single meshes (a whole floor or ceiling) get coarse light maps that show as soft squares and grain. Some find this adds character; split the mesh into tiles if you want it smooth.
 - Trade-offs: lights cannot change in game. Players are lit from stored light samples rather than direct light, so they look slightly flatter.
+- **Remove overlapping coplanar faces before baking.** Two meshes whose faces share a plane (for example a wall running into a pillar of the same thickness) look fine under even dynamic lighting, but flicker once each has its own baked light map. Stop walls at pillar faces instead of running them through.
 - Do not try to switch lights off only inside mirrors. Chivalry 2 is a shipping build, and the engine ignores light-type show flags there.
 
 ## 2. Use fewer, longer mirrors
