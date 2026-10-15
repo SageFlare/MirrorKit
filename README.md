@@ -2,7 +2,7 @@
 
 Mirrors for Chivalry 2 Unchained maps: live reflections that show players, cheap shiny surfaces and breakable mirror tiles. MirrorKit is a **library**: it adds no map by itself. Maps use its assets and require it to be installed.
 
-Version 0.4.0 (optional slower updates for mirrors outside the player's view). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
+Version 0.4.1 (optional AO-free reflections; back faces inherit the 0.4.x settings). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
 
 ## What you need
 
@@ -56,6 +56,10 @@ Since 0.3.8 the centre distance is measured once per frame and the mirror's half
 ### Update slots (0.3.7)
 
 Each tick increments `FrameCounter`; a capture is due when `(FrameCounter + phase) % N == 0`, where `N` is `UpdateEveryNFrames` (or `FarUpdateEveryNFrames` when throttled) and `phase` is 0 unless staggered. Staggered mirrors use `phase = |round(X + 3Y + 7Z)| % N` from the actor location. Versions 0.3.4-0.3.6 evaluated the counter one frame ahead (kept then for exact equivalence with earlier builds); 0.3.7 removes that offset. Update frequency, staggering and cost are unchanged; every mirror simply updates one frame later in its cycle.
+
+### Reflection ambient occlusion (0.4.1)
+
+`DisableReflectionAO` (default off) turns screen-space ambient occlusion off inside this mirror's reflections. The difference is rarely visible in a mirror, and each capture skips the AO pass. Each capture component stores an "AO intensity 0" post-process override at blend weight 0. The checkbox raises the weight to 1 when play starts, so it applies per mirror without extra Blueprints. Two-sided mirrors pass this setting, and `OffscreenUpdateEveryNFrames`, to their generated back face.
 
 ### Off-screen updates (0.4.0)
 
@@ -168,6 +172,7 @@ Two different clearances matter:
 | `DistanceThrottle` | off | Use `FarUpdateEveryNFrames` instead of the base interval beyond `DistanceThrottleStart` |
 | `DistanceThrottleStart` | 1500 cm | Face distance at which optional throttling begins |
 | `FarUpdateEveryNFrames` | 4 | Distant capture interval when throttling is enabled. Values `1` or lower still mean every frame |
+| `DisableReflectionAO` | off | Skip ambient occlusion inside this mirror's reflections (cheaper, rarely visible). See [Reflection ambient occlusion](#reflection-ambient-occlusion-041) |
 | `OffscreenUpdateEveryNFrames` | 1 | Update interval while the whole face is outside your view: `1` unchanged, `N > 1` every N frames, `0` frozen. See [Off-screen updates](#off-screen-updates-040) |
 | `VisibilityTolerance` | 0.2 s | How recently this mirror's or its partner's panel must have been rendered to keep captures active. Lower values stop off-screen work sooner |
 

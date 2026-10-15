@@ -58,7 +58,7 @@ A wall built from several mirror pieces captures once per piece. One mirror cove
 | Setting | Effect measured | Visual cost | Recommendation |
 | --- | --- | --- | --- |
 | `Resolution` 0.5 → 0.35 | about +3% (8 FPS walking) after the steps above | softer reflections | 0.5 is a good default; drop only if GPU-bound with many mirrors |
-| Ambient occlusion off in captures | about −1 ms standing in early tests; overlaps with resolution | not noticeable in mirrors | needs a preset; not a per-mirror setting yet |
+| `DisableReflectionAO` | about −1 ms standing in early tests (every-frame updates); overlaps with resolution | not noticeable in mirrors | tick it on mirror-heavy maps (0.4.1+) |
 | `CaptureDistance` 15 m | −1.75 ms walking | distant mirrors visibly **freeze** | prefer staggering and merging; keep the default 25 m unless the layout hides distant mirrors |
 | `OffscreenUpdateEveryNFrames` 0 | +11 FPS walking, +21 standing in a corner-heavy maze | reflections of mirrors outside your view stop updating inside other mirrors | good for mirror-in-mirror heavy layouts; `4` gave little |
 | `MaxViewDistance` | small (+6-9 FPS at 25-15 m from a ~40 FPS baseline, older kit) | removes distant geometry from reflections | rarely worth it in closed layouts |
