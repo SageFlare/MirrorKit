@@ -2,7 +2,7 @@
 
 Mirrors for Chivalry 2 Unchained maps: live reflections that show players, cheap shiny surfaces and breakable mirror tiles. MirrorKit is a **library**: it adds no map by itself. Maps use its assets and require it to be installed.
 
-Version 0.3.5 (editor comment blocks; runtime logic unchanged from 0.3.4). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
+Version 0.3.6 (distances measured to the nearest point of the mirror face). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
 
 ## What you need
 
@@ -46,6 +46,10 @@ Leave `Partner` and `BackPartner` empty for independent front/back reflections. 
 Other mirrors' displayed images remain visible inside an independent capture. This preserves the existing approximate mirror-within-mirror feedback, including delayed or perspective-inaccurate repetitions. It does not enforce a global visible-bounce limit. Only this actor's own reflective panels are hidden from its independent capture.
 
 Explicit partners remain available for the existing calculated nested-view method, including back-face resolution and presets. Set relationships before BeginPlay; adding a partner to a mirror initialized independently requires a reload to allocate deeper targets. Loss of a partner stops deeper capture execution, but existing allocated targets are retained until the actor ends play. Live relationship rewiring and hidden-list cleanup are not part of this release.
+
+### Face distance (0.3.6)
+
+`CaptureDistance`, `DistanceStaggerStart` and `DistanceThrottleStart` measure from the camera to the **nearest point of the mirror face**, not to the mirror's centre. In front of the mirror this is the straight-line distance to the glass; to the side of it, the distance to the closest edge. Wide mirrors therefore stay live while you stand near one end or walk along the face, where 0.3.5 measured to the centre and could freeze a long wall at about half its width closer than the setting. A viewer exactly in the mirror's plane, or behind it, still never captures. The extra cost is a few vector operations per mirror per frame; capture rules are otherwise unchanged.
 
 ### Tick maintenance (0.3.2)
 
@@ -134,13 +138,13 @@ Two different clearances matter:
 | `ResolutionDropPerLevel` | 0.15 | `Linear`: amount subtracted from the resolution scale for each successive level |
 | `PerLevelResolutionMultiplier` | 0.5 | `Multiply`: multiplier applied again for every successive level. `0.5` halves each level |
 | `MinimumDepthResolutionScale` | 0.125 | Lowest scale permitted for levels after level 1 in any profile |
-| `CaptureDistance` | 2500 cm | Maximum player-to-mirror distance at which this mirror updates. Lower it to stop the entire capture sooner and save performance |
+| `CaptureDistance` | 2500 cm | Maximum camera distance to the nearest point of the mirror face at which this mirror updates. Lower it to stop the entire capture sooner and save performance |
 | `MaxViewDistance` | 0 | Maximum distance each capture renders into the reflected scene. `0` uses Unreal's normal unlimited/default range; a lower positive limit can save performance but removes distant objects from the reflection |
 | `UpdateEveryNFrames` | 1 | Capture cadence. `1` or lower updates every frame; `2` updates every second frame, and so on. Skipped frames reuse the previous reflection |
 | `StaggerMode` | None | Update phase scheduling: `None`; `Distributed` across all eligible static mirrors; or `Distance`, which staggers only mirrors beyond `DistanceStaggerStart` |
-| `DistanceStaggerStart` | 1000 cm | Player-to-mirror distance after which `StaggerMode = Distance` begins distributing update phases |
+| `DistanceStaggerStart` | 1000 cm | Face distance (camera to nearest point of the mirror) after which `StaggerMode = Distance` begins distributing update phases |
 | `DistanceThrottle` | off | Use `FarUpdateEveryNFrames` instead of the base interval beyond `DistanceThrottleStart` |
-| `DistanceThrottleStart` | 1500 cm | Player-to-mirror distance at which optional throttling begins |
+| `DistanceThrottleStart` | 1500 cm | Face distance at which optional throttling begins |
 | `FarUpdateEveryNFrames` | 4 | Distant capture interval when throttling is enabled. Values `1` or lower still mean every frame |
 | `VisibilityTolerance` | 0.2 s | How recently this mirror's or its partner's panel must have been rendered to keep captures active. Lower values stop off-screen work sooner |
 
