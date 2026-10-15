@@ -119,6 +119,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool AddIntVariable(UBlueprint* Blueprint, FName VariableName);
 
+	/** Adds a String member variable (default empty). */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool AddStringVariable(UBlueprint* Blueprint, FName VariableName);
+
 	/** Adds an instance-editable variable backed by a user-defined enum asset. */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool AddEnumVariable(UBlueprint* Blueprint, FName VariableName, UUserDefinedEnum* Enum);

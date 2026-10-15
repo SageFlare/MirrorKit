@@ -506,6 +506,11 @@ bool UAgGraphLibrary::AddIntVariable(UBlueprint* Blueprint, FName VariableName)
 	return AddScalarVariable(Blueprint, VariableName, UEdGraphSchema_K2::PC_Int);
 }
 
+bool UAgGraphLibrary::AddStringVariable(UBlueprint* Blueprint, FName VariableName)
+{
+	return AddScalarVariable(Blueprint, VariableName, UEdGraphSchema_K2::PC_String);
+}
+
 bool UAgGraphLibrary::AddEnumVariable(UBlueprint* Blueprint, FName VariableName, UUserDefinedEnum* Enum)
 {
 	if (!Blueprint || !Enum)

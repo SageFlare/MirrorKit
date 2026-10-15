@@ -2,7 +2,7 @@
 
 Mirrors for Chivalry 2 Unchained maps: live reflections that show players, cheap shiny surfaces and breakable mirror tiles. MirrorKit is a **library**: it adds no map by itself. Maps use its assets and require it to be installed.
 
-Version 0.3.8 (face-distance checks only when a feature uses them). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
+Version 0.3.9 (capture counter for optional telemetry). Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
 
 ## What you need
 
@@ -56,6 +56,10 @@ Since 0.3.8 the centre distance is measured once per frame and the mirror's half
 ### Update slots (0.3.7)
 
 Each tick increments `FrameCounter`; a capture is due when `(FrameCounter + phase) % N == 0`, where `N` is `UpdateEveryNFrames` (or `FarUpdateEveryNFrames` when throttled) and `phase` is 0 unless staggered. Staggered mirrors use `phase = |round(X + 3Y + 7Z)| % N` from the actor location. Versions 0.3.4-0.3.6 evaluated the counter one frame ahead (kept then for exact equivalence with earlier builds); 0.3.7 removes that offset. Update frequency, staggering and cost are unchanged; every mirror simply updates one frame later in its cycle.
+
+### Diagnostics (0.3.9)
+
+Each live mirror counts its submitted scene captures in `CaptureCount` (one integer add per capture; no settings, no visual change). `TelemetryMark` is reserved for telemetry actors that read the counters, for example to count how many different mirrors captured in a time window. MirrorKit itself never reads either value.
 
 ### Tick maintenance (0.3.2)
 
