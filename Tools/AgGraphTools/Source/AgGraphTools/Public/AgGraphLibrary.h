@@ -10,6 +10,7 @@ class UTextureCube;
 class UMaterial;
 class UMaterialExpression;
 class UShapeComponent;
+class UUserDefinedEnum;
 
 /**
  * Editor-only Blueprint graph authoring for editor Python (UE 4.25 exposes no node API).
@@ -20,6 +21,52 @@ class AGGRAPHTOOLS_API UAgGraphLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
+	/** Graph, node, pure flag and member name, tab-separated; excludes comment nodes. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static TArray<FString> ListAnnotationNodes(UBlueprint* Blueprint);
+	/** Remove only comment boxes managed by this annotation pass. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static void ClearGeneratedComments(UBlueprint* Blueprint, const TArray<FString>& LegacyCommentGuids);
+	/** Lay out a group and enclose it in a descriptive comment box. No pin changes. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool AddCommentBlock(UBlueprint* Blueprint, FName GraphName, const FString& Text, const TArray<FString>& NodeNames, int32 ColorIndex);
+	/** Remove pure nodes with no output consumers, including newly orphaned dependencies. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static int32 PruneUnusedPureNodes(UBlueprint* Blueprint);
+	/** Editor validation only: invoke a parameterless function on a simulation object. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool InvokeNoArgs(UObject* Target, FName FunctionName);
+	/** Add a typed output to the selected function, returning its result node. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static FString AddFunctionOutput(UBlueprint* Blueprint, FName Name, FName Category, UObject* Subtype);
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static FString AddFunctionReturn(UBlueprint* Blueprint);
+	/** Set selected function category, explanatory tooltip and purity. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool DescribeFunction(UBlueprint* Blueprint, const FString& Category, const FString& Description, bool bPure);
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static FString AddMakeArray(UBlueprint* Blueprint, int32 Count);
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static FString AddArrayGet(UBlueprint* Blueprint);
+	/** Creates/replaces a named generated function and selects it. Returns its entry node. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static FString CreateFunction(UBlueprint* Blueprint, FName FunctionName);
+
+	/** Adds an input to the selected function. Category uses K2 names (float, struct, object). */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool AddFunctionInput(UBlueprint* Blueprint, FName Name, FName Category, UObject* Subtype);
+
+	/** Select a function by name; None selects EventGraph. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool SelectFunction(UBlueprint* Blueprint, FName FunctionName);
+
+	/** Calls a function defined by this Blueprint. Compile its signature first. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static FString AddSelfFunctionCall(UBlueprint* Blueprint, FName FunctionName, int32 X, int32 Y);
+
+	/** Lay out the selected graph by dependency columns, without overlapping nodes. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static void LayoutGraph(UBlueprint* Blueprint);
 	/** Selects the event graph (false) or User Construction Script (true) for subsequent node calls. */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool UseConstructionScript(UBlueprint* Blueprint, bool bUseConstructionScript);
@@ -71,6 +118,14 @@ public:
 	/** Adds an instance-editable int variable; set its default on the CDO after compiling. */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool AddIntVariable(UBlueprint* Blueprint, FName VariableName);
+
+	/** Adds an instance-editable variable backed by a user-defined enum asset. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool AddEnumVariable(UBlueprint* Blueprint, FName VariableName, UUserDefinedEnum* Enum);
+
+	/** Replaces a user-defined enum's entries with the supplied display names. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool SetEnumValues(UUserDefinedEnum* Enum, const TArray<FString>& DisplayNames);
 
 	/** Adds a setter for a member variable of the Blueprint itself (no target pin). */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")

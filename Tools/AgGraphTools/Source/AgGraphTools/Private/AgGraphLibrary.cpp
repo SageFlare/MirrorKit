@@ -7,6 +7,9 @@
 #include "EdGraphSchema_K2.h"
 #include "K2Node_Event.h"
 #include "K2Node_FunctionEntry.h"
+#include "K2Node_FunctionResult.h"
+#include "K2Node_MakeArray.h"
+#include "K2Node_GetArrayItem.h"
 #include "K2Node_CallFunction.h"
 #include "K2Node_VariableGet.h"
 #include "K2Node_VariableSet.h"
@@ -22,6 +25,7 @@
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Kismet2/CompilerResultsLog.h"
 #include "EdGraphUtilities.h"
+#include "EdGraphNode_Comment.h"
 #include "Editor.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialExpression.h"
@@ -29,6 +33,8 @@
 #include "Engine/SceneCaptureCube.h"
 #include "Components/SceneCaptureComponentCube.h"
 #include "Components/ShapeComponent.h"
+#include "Engine/UserDefinedEnum.h"
+#include "Kismet2/EnumEditorUtils.h"
 #include "Engine/TextureRenderTargetCube.h"
 #include "Engine/TextureCube.h"
 #include "AssetRegistryModule.h"
@@ -37,6 +43,7 @@
 namespace
 {
 	TSet<const UBlueprint*> ConstructionTargets;
+	TMap<const UBlueprint*, TWeakObjectPtr<UEdGraph>> FunctionTargets;
 
 	UEdGraph* EventGraph(UBlueprint* Blueprint)
 	{
@@ -45,6 +52,8 @@ namespace
 
 	UEdGraph* TargetGraph(UBlueprint* Blueprint)
 	{
+		if (auto* Selected = FunctionTargets.Find(Blueprint))
+			if (Selected->IsValid()) return Selected->Get();
 		if (Blueprint && ConstructionTargets.Contains(Blueprint))
 			return FBlueprintEditorUtils::FindUserConstructionScript(Blueprint);
 		return EventGraph(Blueprint);
@@ -91,8 +100,268 @@ namespace
 	}
 }
 
+FString UAgGraphLibrary::CreateFunction(UBlueprint* Blueprint, FName FunctionName)
+{
+	if (!Blueprint || FunctionName.IsNone()) return FString();
+	FunctionTargets.Remove(Blueprint);
+	for (UEdGraph* Existing : TArray<UEdGraph*>(Blueprint->FunctionGraphs))
+		if (Existing->GetFName() == FunctionName)
+			FBlueprintEditorUtils::RemoveGraph(Blueprint, Existing);
+	UEdGraph* Graph = FBlueprintEditorUtils::CreateNewGraph(Blueprint, FunctionName, UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+	FBlueprintEditorUtils::AddFunctionGraph<UClass>(Blueprint, Graph, true, nullptr);
+	FunctionTargets.Add(Blueprint, Graph);
+	TArray<UK2Node_FunctionEntry*> Entries;
+	Graph->GetNodesOfClass(Entries);
+	return Entries.Num() == 1 ? Entries[0]->GetName() : FString();
+}
+
+TArray<FString> UAgGraphLibrary::ListAnnotationNodes(UBlueprint* Blueprint)
+{
+	TArray<FString> Out;
+	if (!Blueprint) return Out;
+	TArray<UEdGraph*> Graphs;
+	Blueprint->GetAllGraphs(Graphs);
+	for (UEdGraph* Graph : Graphs) for (UEdGraphNode* Node : Graph->Nodes) {
+		if (!Node || Node->IsA<UEdGraphNode_Comment>()) continue;
+		UK2Node* K2 = Cast<UK2Node>(Node);
+		FString Member;
+		if (auto* Call = Cast<UK2Node_CallFunction>(Node)) Member = Call->FunctionReference.GetMemberName().ToString();
+		else if (auto* Event = Cast<UK2Node_Event>(Node)) Member = Event->EventReference.GetMemberName().ToString();
+		else if (auto* Get = Cast<UK2Node_VariableGet>(Node)) Member = Get->VariableReference.GetMemberName().ToString();
+		Out.Add(FString::Printf(TEXT("%s\t%s\t%d\t%s"), *Graph->GetName(), *Node->GetName(), K2 && K2->IsNodePure() ? 1 : 0, *Member));
+	}
+	return Out;
+}
+
+void UAgGraphLibrary::ClearGeneratedComments(UBlueprint* Blueprint, const TArray<FString>& LegacyCommentGuids)
+{
+	if (!Blueprint) return;
+	TArray<UEdGraph*> Graphs;
+	Blueprint->GetAllGraphs(Graphs);
+	for (UEdGraph* Graph : Graphs) for (UEdGraphNode* Node : TArray<UEdGraphNode*>(Graph->Nodes))
+		if (Node && Node->IsA<UEdGraphNode_Comment>() && (Node->NodeComment.StartsWith(TEXT("MirrorKit | ")) ||
+			(Node->NodeComment == TEXT("Comment") && LegacyCommentGuids.Contains(Node->NodeGuid.ToString(EGuidFormats::Digits)))))
+			FBlueprintEditorUtils::RemoveNode(Blueprint, Node, true);
+}
+
+bool UAgGraphLibrary::AddCommentBlock(UBlueprint* Blueprint, FName GraphName, const FString& Text, const TArray<FString>& NodeNames, int32 ColorIndex)
+{
+	if (!Blueprint) return false;
+	TArray<UEdGraph*> Graphs;
+	Blueprint->GetAllGraphs(Graphs);
+	UEdGraph* Graph = nullptr;
+	for (UEdGraph* Candidate : Graphs) if (Candidate->GetFName() == GraphName) { Graph = Candidate; break; }
+	if (!Graph) return false;
+	TArray<UEdGraphNode*> Nodes;
+	int32 Top = 0;
+	for (UEdGraphNode* Node : Graph->Nodes) {
+		if (Node->IsA<UEdGraphNode_Comment>()) Top = FMath::Max(Top, Node->NodePosY + Node->NodeHeight + 300);
+		else if (NodeNames.Contains(Node->GetName())) Nodes.Add(Node);
+	}
+	if (Nodes.Num() != NodeNames.Num()) return false;
+	TMap<UEdGraphNode*, int32> Columns;
+	TSet<UEdGraphNode*> Visiting;
+	TFunction<int32(UEdGraphNode*)> Visit = [&](UEdGraphNode* Node) -> int32 {
+		if (int32* Found = Columns.Find(Node)) return *Found;
+		if (Visiting.Contains(Node)) return 0;
+		Visiting.Add(Node);
+		int32 Column = 0;
+		for (UEdGraphPin* Pin : Node->Pins) if (Pin->Direction == EGPD_Input)
+			for (UEdGraphPin* Link : Pin->LinkedTo) if (Nodes.Contains(Link->GetOwningNode()))
+				Column = FMath::Max(Column, Visit(Link->GetOwningNode()) + 1);
+		Visiting.Remove(Node); Columns.Add(Node, Column); return Column;
+	};
+	TMap<int32, int32> Heights;
+	int32 Right = 1100, Bottom = Top + 300;
+	for (UEdGraphNode* Node : Nodes) {
+		const int32 Column = Visit(Node);
+		int32& Height = Heights.FindOrAdd(Column);
+		Node->NodePosX = 80 + Column * 700;
+		Node->NodePosY = Top + 220 + Height;
+		const int32 NodeSizeY = FMath::Max(220, 110 + Node->Pins.Num() * 32);
+		Height += NodeSizeY + 100;
+		Right = FMath::Max(Right, Node->NodePosX + 650);
+		Bottom = FMath::Max(Bottom, Node->NodePosY + NodeSizeY + 80);
+	}
+	FGraphNodeCreator<UEdGraphNode_Comment> Creator(*Graph);
+	UEdGraphNode_Comment* Box = Creator.CreateNode();
+	// Finalize invokes PostPlacedNewNode, which overwrites NodeComment with "Comment".
+	Creator.Finalize();
+	Box->NodeComment = TEXT("MirrorKit | ") + Text;
+	Box->NodePosX = 0; Box->NodePosY = Top;
+	Box->NodeWidth = Right + 80; Box->NodeHeight = Bottom - Top;
+	Box->FontSize = 20;
+	Box->CommentColor = ColorIndex % 2 ? FLinearColor(0.12f, 0.23f, 0.36f, 1.f) : FLinearColor(0.12f, 0.29f, 0.23f, 1.f);
+	Box->MoveMode = ECommentBoxMode::GroupMovement;
+	Box->bCommentBubbleVisible_InDetailsPanel = true;
+	Box->bColorCommentBubble = true;
+	for (UEdGraphNode* Node : Nodes) Box->AddNodeUnderComment(Node);
+	FBlueprintEditorUtils::MarkBlueprintAsModified(Blueprint);
+	return true;
+}
+
+bool UAgGraphLibrary::InvokeNoArgs(UObject* Target, FName FunctionName)
+{
+	UFunction* Function = Target ? Target->FindFunction(FunctionName) : nullptr;
+	if (!Function || Function->ParmsSize != 0) return false;
+	Target->ProcessEvent(Function, nullptr);
+	return true;
+}
+
+int32 UAgGraphLibrary::PruneUnusedPureNodes(UBlueprint* Blueprint)
+{
+	if (!Blueprint) return 0;
+	TArray<UEdGraph*> Graphs;
+	Blueprint->GetAllGraphs(Graphs);
+	int32 Removed = 0;
+	for (UEdGraph* Graph : Graphs) {
+		bool bChanged;
+		do {
+			bChanged = false;
+			for (UEdGraphNode* Node : TArray<UEdGraphNode*>(Graph->Nodes)) {
+				UK2Node* K2 = Cast<UK2Node>(Node);
+				if (!K2 || !K2->IsNodePure()) continue;
+				bool bUsed = false;
+				for (UEdGraphPin* Pin : Node->Pins)
+					if (Pin->Direction == EGPD_Output && Pin->LinkedTo.Num()) bUsed = true;
+				if (!bUsed) { FBlueprintEditorUtils::RemoveNode(Blueprint, Node, true); ++Removed; bChanged = true; }
+			}
+		} while (bChanged);
+	}
+	FBlueprintEditorUtils::MarkBlueprintAsModified(Blueprint);
+	return Removed;
+}
+
+bool UAgGraphLibrary::AddFunctionInput(UBlueprint* Blueprint, FName Name, FName Category, UObject* Subtype)
+{
+	UEdGraph* Graph = TargetGraph(Blueprint);
+	if (!Graph || !Blueprint->FunctionGraphs.Contains(Graph)) return false;
+	TArray<UK2Node_FunctionEntry*> Entries;
+	Graph->GetNodesOfClass(Entries);
+	if (Entries.Num() != 1) return false;
+	FEdGraphPinType Type;
+	Type.PinCategory = Category;
+	Type.PinSubCategoryObject = Subtype;
+	if (!Entries[0]->CreateUserDefinedPin(Name, Type, EGPD_Output, false)) return false;
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+	return true;
+}
+
+bool UAgGraphLibrary::SelectFunction(UBlueprint* Blueprint, FName FunctionName)
+{
+	FunctionTargets.Remove(Blueprint);
+	ConstructionTargets.Remove(Blueprint);
+	if (!Blueprint) return false;
+	if (FunctionName.IsNone()) return true;
+	for (UEdGraph* Graph : Blueprint->FunctionGraphs)
+		if (Graph->GetFName() == FunctionName) { FunctionTargets.Add(Blueprint, Graph); return true; }
+	return false;
+}
+
+FString UAgGraphLibrary::AddFunctionOutput(UBlueprint* Blueprint, FName Name, FName Category, UObject* Subtype)
+{
+	UEdGraph* Graph = TargetGraph(Blueprint);
+	if (!Graph || !Blueprint->FunctionGraphs.Contains(Graph)) return FString();
+	TArray<UK2Node_FunctionResult*> Results;
+	Graph->GetNodesOfClass(Results);
+	UK2Node_FunctionResult* Result = Results.Num() ? Results[0] : nullptr;
+	if (!Result) {
+		FGraphNodeCreator<UK2Node_FunctionResult> Creator(*Graph);
+		Result = Creator.CreateNode();
+		Creator.Finalize();
+	}
+	FEdGraphPinType Type;
+	Type.PinCategory = Category;
+	Type.PinSubCategoryObject = Subtype;
+	if (!Result->CreateUserDefinedPin(Name, Type, EGPD_Input, false)) return FString();
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+	return Result->GetName();
+}
+
+bool UAgGraphLibrary::DescribeFunction(UBlueprint* Blueprint, const FString& Category, const FString& Description, bool bPure)
+{
+	UEdGraph* Graph = TargetGraph(Blueprint);
+	if (!Graph) return false;
+	TArray<UK2Node_FunctionEntry*> Entries;
+	Graph->GetNodesOfClass(Entries);
+	if (Entries.Num() != 1) return false;
+	Entries[0]->MetaData.Category = FText::FromString(Category);
+	Entries[0]->MetaData.ToolTip = FText::FromString(Description);
+	Entries[0]->NodeComment = Description;
+	Entries[0]->bCommentBubbleVisible = true;
+	if (bPure) Entries[0]->AddExtraFlags(FUNC_BlueprintPure);
+	else Entries[0]->ClearExtraFlags(FUNC_BlueprintPure);
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+	return true;
+}
+
+FString UAgGraphLibrary::AddFunctionReturn(UBlueprint* Blueprint)
+{
+	UEdGraph* Graph = TargetGraph(Blueprint);
+	if (!Graph) return FString();
+	TArray<UK2Node_FunctionResult*> Results;
+	Graph->GetNodesOfClass(Results);
+	if (!Results.Num()) return FString();
+	FGraphNodeCreator<UK2Node_FunctionResult> Creator(*Graph);
+	UK2Node_FunctionResult* Result = Creator.CreateNode();
+	Creator.Finalize();
+	for (UEdGraphPin* Pin : Results[0]->Pins)
+		if (Pin->PinType.PinCategory != UEdGraphSchema_K2::PC_Exec)
+			Result->CreateUserDefinedPin(Pin->PinName, Pin->PinType, EGPD_Input, false);
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+	return Result->GetName();
+}
+
+FString UAgGraphLibrary::AddMakeArray(UBlueprint* Blueprint, int32 Count)
+{
+	if (Count < 1) return FString();
+	return Place<UK2Node_MakeArray>(Blueprint, 0, 0, [&](UK2Node_MakeArray* Node) { Node->NumInputs = Count; });
+}
+
+FString UAgGraphLibrary::AddArrayGet(UBlueprint* Blueprint)
+{
+	return Place<UK2Node_GetArrayItem>(Blueprint, 0, 0, [](UK2Node_GetArrayItem*) {});
+}
+
+FString UAgGraphLibrary::AddSelfFunctionCall(UBlueprint* Blueprint, FName FunctionName, int32 X, int32 Y)
+{
+	if (!Blueprint || !Blueprint->SkeletonGeneratedClass || !Blueprint->SkeletonGeneratedClass->FindFunctionByName(FunctionName)) return FString();
+	return Place<UK2Node_CallFunction>(Blueprint, X, Y, [&](UK2Node_CallFunction* Node) { Node->FunctionReference.SetSelfMember(FunctionName); });
+}
+
+void UAgGraphLibrary::LayoutGraph(UBlueprint* Blueprint)
+{
+	UEdGraph* Graph = TargetGraph(Blueprint);
+	if (!Graph) return;
+	TMap<UEdGraphNode*, int32> Columns;
+	TSet<UEdGraphNode*> Visiting;
+	TFunction<int32(UEdGraphNode*)> Visit = [&](UEdGraphNode* Node) -> int32 {
+		if (int32* Existing = Columns.Find(Node)) return *Existing;
+		if (Visiting.Contains(Node)) return 0;
+		Visiting.Add(Node);
+		int32 Column = 0;
+		for (UEdGraphPin* Pin : Node->Pins)
+			if (Pin->Direction == EGPD_Input)
+				for (UEdGraphPin* Link : Pin->LinkedTo)
+					if (Link->GetOwningNode()->GetGraph() == Graph) Column = FMath::Max(Column, Visit(Link->GetOwningNode()) + 1);
+		Visiting.Remove(Node);
+		Columns.Add(Node, Column);
+		return Column;
+	};
+	TMap<int32, int32> Heights;
+	for (UEdGraphNode* Node : Graph->Nodes) {
+		int32 Column = Visit(Node);
+		int32& Height = Heights.FindOrAdd(Column);
+		Node->NodePosX = Column * 600;
+		Node->NodePosY = Height;
+		Height += FMath::Max(220, 110 + Node->Pins.Num() * 32);
+	}
+	FBlueprintEditorUtils::MarkBlueprintAsModified(Blueprint);
+}
+
 bool UAgGraphLibrary::UseConstructionScript(UBlueprint* Blueprint, bool bUseConstructionScript)
 {
+	FunctionTargets.Remove(Blueprint);
 	if (!Blueprint || (bUseConstructionScript && !FBlueprintEditorUtils::FindUserConstructionScript(Blueprint)))
 		return false;
 	if (bUseConstructionScript)
@@ -235,6 +504,36 @@ bool UAgGraphLibrary::AddFloatVariable(UBlueprint* Blueprint, FName VariableName
 bool UAgGraphLibrary::AddIntVariable(UBlueprint* Blueprint, FName VariableName)
 {
 	return AddScalarVariable(Blueprint, VariableName, UEdGraphSchema_K2::PC_Int);
+}
+
+bool UAgGraphLibrary::AddEnumVariable(UBlueprint* Blueprint, FName VariableName, UUserDefinedEnum* Enum)
+{
+	if (!Blueprint || !Enum)
+		return false;
+	FEdGraphPinType Type;
+	Type.PinCategory = UEdGraphSchema_K2::PC_Byte;
+	Type.PinSubCategoryObject = Enum;
+	if (!FBlueprintEditorUtils::AddMemberVariable(Blueprint, VariableName, Type))
+		return false;
+	FBlueprintEditorUtils::SetBlueprintOnlyEditableFlag(Blueprint, VariableName, false);
+	return true;
+}
+
+bool UAgGraphLibrary::SetEnumValues(UUserDefinedEnum* Enum, const TArray<FString>& DisplayNames)
+{
+	if (!Enum || DisplayNames.Num() == 0)
+		return false;
+	while (Enum->NumEnums() - 1 > DisplayNames.Num())
+		FEnumEditorUtils::RemoveEnumeratorFromUserDefinedEnum(Enum, Enum->NumEnums() - 2);
+	while (Enum->NumEnums() - 1 < DisplayNames.Num())
+		FEnumEditorUtils::AddNewEnumeratorForUserDefinedEnum(Enum);
+	for (int32 Index = 0; Index < DisplayNames.Num(); ++Index)
+	{
+		if (!FEnumEditorUtils::SetEnumeratorDisplayName(Enum, Index, FText::FromString(DisplayNames[Index])))
+			return false;
+	}
+	Enum->MarkPackageDirty();
+	return true;
 }
 
 bool UAgGraphLibrary::AddBoolVariable(UBlueprint* Blueprint, FName VariableName)
