@@ -241,7 +241,7 @@ Release files: `MirrorKit.pak` (+ `.sha256`), `MirrorKit_Source.zip` (`Content/`
 
 **Diagnostics.** Each mirror counts its captures in `CaptureCount`. `TelemetryMark` is reserved for telemetry actors that read the counters. MirrorKit never reads either value.
 
-**AgGraphTools.** [`Tools/AgGraphTools`](Tools/AgGraphTools) is the editor-only UE 4.25 plugin that MirrorLab's generator uses to build MirrorKit's Blueprint graphs from Python, a capability UE 4.25 Python lacks. Players, hosts and mappers do not need it. `Tools/annotate_blueprints.py` reapplies the comment blocks without changing logic. Cleanup validation is recorded in [docs/blueprint-cleanup-validation.md](docs/blueprint-cleanup-validation.md).
+**AgGraphTools.** [`Tools/AgGraphTools`](Tools/AgGraphTools) is the editor-only UE 4.25 plugin that MirrorLab's generator uses to build MirrorKit's Blueprint graphs from Python, a capability UE 4.25 Python lacks. Players, hosts and mappers do not need it. `Tools/annotate_blueprints.py` reapplies the comment blocks without changing logic.
 
 ## Changelog
 
