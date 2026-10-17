@@ -123,6 +123,30 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool AddStringVariable(UBlueprint* Blueprint, FName VariableName);
 
+	/** Details-panel category of a member variable (e.g. "Mirror|Performance"). */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool SetVariableCategory(UBlueprint* Blueprint, FName VariableName, const FString& Category);
+
+	/** Tooltip shown for a member variable in the details panel. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool SetVariableTooltip(UBlueprint* Blueprint, FName VariableName, const FString& Tooltip);
+
+	/** Removes a function graph by name (callers must be removed first); false if it does not exist. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool RemoveFunction(UBlueprint* Blueprint, FName FunctionName);
+
+	/** Removes a member variable (and its get/set nodes); false if it does not exist. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool RemoveVariable(UBlueprint* Blueprint, FName VariableName);
+
+	/** Instance editable (shown on placed actors) or Blueprint-only (internal state hidden from mapmakers). */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool SetVariableInstanceEditable(UBlueprint* Blueprint, FName VariableName, bool bInstanceEditable);
+
+	/** Marks a member variable Replicated (CPF_Net) or not; no RepNotify. The actor's CDO must also have bReplicates. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool SetVariableReplicated(UBlueprint* Blueprint, FName VariableName, bool bReplicated);
+
 	/** Adds an instance-editable variable backed by a user-defined enum asset. */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool AddEnumVariable(UBlueprint* Blueprint, FName VariableName, UUserDefinedEnum* Enum);
@@ -154,6 +178,10 @@ public:
 	/** Marks a member variable Expose on Spawn (shown as a pin on Spawn Actor nodes). */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool SetExposeOnSpawn(UBlueprint* Blueprint, FName VariableName);
+
+	/** Removes Expose on Spawn from a member variable (e.g. after making it non-editable). */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool ClearExposeOnSpawn(UBlueprint* Blueprint, FName VariableName);
 
 	/** Adds an engine standard macro instance (e.g. ForEachLoop: pins Exec, Array, LoopBody, Array Element, Array Index, Completed). */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")

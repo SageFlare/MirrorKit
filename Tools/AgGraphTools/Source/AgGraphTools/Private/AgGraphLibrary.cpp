@@ -546,9 +546,92 @@ bool UAgGraphLibrary::AddBoolVariable(UBlueprint* Blueprint, FName VariableName)
 	return AddScalarVariable(Blueprint, VariableName, UEdGraphSchema_K2::PC_Boolean);
 }
 
+bool UAgGraphLibrary::SetVariableCategory(UBlueprint* Blueprint, FName VariableName, const FString& Category)
+{
+	if (!Blueprint || FBlueprintEditorUtils::FindNewVariableIndex(Blueprint, VariableName) == INDEX_NONE)
+	{
+		return false;
+	}
+	FBlueprintEditorUtils::SetBlueprintVariableCategory(Blueprint, VariableName, nullptr, FText::FromString(Category), true);
+	return true;
+}
+
+bool UAgGraphLibrary::RemoveFunction(UBlueprint* Blueprint, FName FunctionName)
+{
+	if (!Blueprint || FunctionName.IsNone()) return false;
+	FunctionTargets.Remove(Blueprint);
+	for (UEdGraph* Existing : TArray<UEdGraph*>(Blueprint->FunctionGraphs))
+	{
+		if (Existing->GetFName() == FunctionName)
+		{
+			FBlueprintEditorUtils::RemoveGraph(Blueprint, Existing);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UAgGraphLibrary::RemoveVariable(UBlueprint* Blueprint, FName VariableName)
+{
+	if (!Blueprint || FBlueprintEditorUtils::FindNewVariableIndex(Blueprint, VariableName) == INDEX_NONE)
+	{
+		return false;
+	}
+	FBlueprintEditorUtils::RemoveMemberVariable(Blueprint, VariableName);
+	return true;
+}
+
+bool UAgGraphLibrary::SetVariableTooltip(UBlueprint* Blueprint, FName VariableName, const FString& Tooltip)
+{
+	if (!Blueprint || FBlueprintEditorUtils::FindNewVariableIndex(Blueprint, VariableName) == INDEX_NONE)
+	{
+		return false;
+	}
+	FBlueprintEditorUtils::SetBlueprintVariableMetaData(Blueprint, VariableName, nullptr, TEXT("tooltip"), Tooltip);
+	return true;
+}
+
+bool UAgGraphLibrary::SetVariableInstanceEditable(UBlueprint* Blueprint, FName VariableName, bool bInstanceEditable)
+{
+	if (!Blueprint || FBlueprintEditorUtils::FindNewVariableIndex(Blueprint, VariableName) == INDEX_NONE)
+	{
+		return false;
+	}
+	FBlueprintEditorUtils::SetBlueprintOnlyEditableFlag(Blueprint, VariableName, !bInstanceEditable);
+	return true;
+}
+
+bool UAgGraphLibrary::SetVariableReplicated(UBlueprint* Blueprint, FName VariableName, bool bReplicated)
+{
+	if (!Blueprint)
+	{
+		return false;
+	}
+	const int32 Index = FBlueprintEditorUtils::FindNewVariableIndex(Blueprint, VariableName);
+	if (Index == INDEX_NONE)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AgGraph: no variable '%s' to replicate"), *VariableName.ToString());
+		return false;
+	}
+	FBPVariableDescription& Variable = Blueprint->NewVariables[Index];
+	if (bReplicated)
+	{
+		Variable.PropertyFlags |= CPF_Net;
+	}
+	else
+	{
+		Variable.PropertyFlags &= ~(CPF_Net | CPF_RepNotify);
+		Variable.RepNotifyFunc = NAME_None;
+	}
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+	return true;
+}
+
 FString UAgGraphLibrary::AddExternalVariableSetNode(UBlueprint* Blueprint, UClass* OwnerClass, FName VariableName, int32 X, int32 Y)
 {
-	return Place<UK2Node_VariableSet>(Blueprint, X, Y, [&](UK2Node_VariableSet* Node) { Node->VariableReference.SetExternalMember(VariableName, OwnerClass); });
+	// Same as the get node: a null/own-class owner targets another instance of this Blueprint (skeleton class).
+	UClass* Owner = (!OwnerClass || OwnerClass == Blueprint->GeneratedClass) ? Blueprint->SkeletonGeneratedClass : OwnerClass;
+	return Place<UK2Node_VariableSet>(Blueprint, X, Y, [&](UK2Node_VariableSet* Node) { Node->VariableReference.SetExternalMember(VariableName, Owner); });
 }
 
 FString UAgGraphLibrary::AddSelfVariableSetNode(UBlueprint* Blueprint, FName VariableName, int32 X, int32 Y)
@@ -590,6 +673,16 @@ bool UAgGraphLibrary::SetExposeOnSpawn(UBlueprint* Blueprint, FName VariableName
 		return false;
 	}
 	FBlueprintEditorUtils::SetBlueprintVariableMetaData(Blueprint, VariableName, nullptr, FBlueprintMetadata::MD_ExposeOnSpawn, TEXT("true"));
+	return true;
+}
+
+bool UAgGraphLibrary::ClearExposeOnSpawn(UBlueprint* Blueprint, FName VariableName)
+{
+	if (!Blueprint || FBlueprintEditorUtils::FindNewVariableIndex(Blueprint, VariableName) == INDEX_NONE)
+	{
+		return false;
+	}
+	FBlueprintEditorUtils::RemoveBlueprintVariableMetaData(Blueprint, VariableName, nullptr, FBlueprintMetadata::MD_ExposeOnSpawn);
 	return true;
 }
 

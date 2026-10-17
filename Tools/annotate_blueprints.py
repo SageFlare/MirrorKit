@@ -3,20 +3,26 @@ import re
 import unreal as u
 
 DESCRIPTIONS = {
- 'UserConstructionScript': 'Editor setup\nClamp Depth to 1-10, keep TwinGap clear of capture planes, size the placement guide.',
+ 'UserConstructionScript': 'Editor setup\nClamp Depth to 1-10 and size the orange guide: keep Depth + 3 cm behind the face clear.',
  'EventGraph': 'Entry points\nBeginPlay initializes the mirror. Tick delegates to UpdateMirror.',
- 'InitializeMirror': 'Startup orchestration\nConfigure geometry, optional back face and tiles; initialize capture resources and player stand-in.',
+ 'InitializeMirror': 'Startup orchestration\nConfigure geometry and tiles; initialize capture resources and player stand-in.',
  'ConfigureBackingAndDepth': 'Backing and effective depth\nConfigure backing visibility and depth for this mirror instance.',
- 'CreateBackFace': 'Optional second face\nCreate and configure the twin mirror on the back of a two-sided wall.',
  'ConfigureTileMode': 'Breakable tile display\nConfigure the capture wall for tiles sharing its reflection.',
  'InitializeFirstCapture': 'First reflection resources\nCreate the first render target and material binding using the first-level resolution rules.',
  'InitializeDeepCapture': 'Deeper reflection resources\nApply the selected resolution profile and minimum scale to this depth slot.',
  'InitializeCaptureResources': 'Bounded component initialization\nVisit the ten existing capture slots; initialize first and deeper levels with their respective rules.',
  'EnsurePlayerStandIn': 'Local player reflection stand-in\nFind or create the selected head/body stand-in used by scene captures.',
  'UpdateMirror': 'Per-frame orchestration\nResolve partner, advance scheduling, check eligibility, then refresh hidden actors and capture.',
- 'ResolvePartner': 'Optional explicit partner\nResolve a valid distinct partner/back face. Unassigned or self references use one reflection level.',
+ 'ResolvePartner': 'Optional explicit partner\nResolve a valid distinct partner. Unassigned or self references use one reflection level.',
  'AdvanceCaptureSchedule': 'Cadence, stagger and distance throttle\nIncrement FrameCounter; due when (FrameCounter + phase) % interval == 0.',
  'CheckCaptureEligibility': 'Capture gating\nCheck viewer validity, face distance, front-facing and recent-render/tile conditions before capture work.',
+ 'ResolveSettings': 'Settings hierarchy\nThe budget is map-wide: BP_MirrorKitBudget, or the kit defaults without one; ExcludeFromBudget sets this mirror budget to 0. Own keeps the other values on this mirror; MapDefault copies the map BP_MirrorKitSettings when present; Profile copies its MirrorProfile data asset (falls back to the map).',
+ 'ApplyQualityCaps': 'MirrorQuality caps\nLower resolution, update rate, capture distance and budget to the given caps (0 = no cap); force AO off or mirrors off. Repeated caps keep the strictest.',
+ 'ApplyQualityPreset': 'MirrorQuality preset\nApply a BP_MirrorQuality data asset as caps; no preset = no change.',
+ 'ApplyMirrorsOff': 'Mirrors off\nShow the environment material on the face and stop ticking (no live captures).',
+ 'ResolveQuality': 'Quality at start-up\nPlayer: -MirrorQuality= preset or asset path, inline -Mirror* caps. Server: ?MirrorQuality= on the map URL, shared through BP_MirrorKitNet. Client: the shared server quality if it already arrived.',
+ 'ApplyServerQuality': 'Late server quality\nCalled by BP_MirrorKitNet on clients: apply the server preset, then switch off or re-create render targets at the capped resolution.',
+ 'UpdateCaptureBudget': 'Capture budget\nCaptureBudget > 0: report captures to one shared owner mirror; the first mirror each frame smooths the total and steps the shared interval multiplier (1..CaptureBudgetMaxMultiplier).',
  'UpdateOffscreenFlag': 'Off-screen test\nSet Offscreen when the whole face is outside the player view frustum; used only when OffscreenUpdateEveryNFrames is not 1.',
  'IsWithinFaceDistance': 'Centre-first distance test\nDecide from the centre distance when possible; compute the exact face distance only near the limit.',
  'DistanceToMirrorFace': 'Face distance\nDistance from a point to the nearest point of the mirror face rectangle; used by capture distance, stagger and throttle.',
@@ -55,7 +61,7 @@ def annotate(bp, legacy_comment_guids=()):
         elif bp.get_name().startswith('BP_MirrorDouble'):
             sections = [('Player stand-in: '+graph+'\nCopy local player meshes/pose for reflections. Tick skips dedicated servers and checks player validity.\nHead/body variant behavior is retained in this Blueprint.', [n for n,p,m in nodes])]
         elif bp.get_name().startswith('BP_MirrorTile'):
-            sections = [('Breakable tile: '+graph+'\nDetect broken/dead state, hide the tile and disable collision.\nLive tiles also display the wall and twin reflection materials.', [n for n,p,m in nodes])]
+            sections = [('Breakable tile: '+graph+'\nDetect broken/dead state, hide the tile and disable collision.\nLive tiles also display the Wall (front) and BackWall (back) reflection materials.', [n for n,p,m in nodes])]
         else:
             sections = [('Inherited mirror preset: '+graph+'\nCapture behavior lives in BP_CaptureMirror. Inspect Class Defaults for this preset settings.', [n for n,p,m in nodes])]
         for title, names in sections:
