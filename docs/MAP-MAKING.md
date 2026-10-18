@@ -249,4 +249,4 @@ Open `BP_CaptureMirror`. EventGraph resolves the settings, finds the manager and
 
 `BP_MirrorKitManager`: `ApplyServerOptions` (parses the quality layers), `ResolveBudget` (reads `BP_MirrorKitBudget`), and a Tick that smooths the FPS and steps the budget multiplier.
 
-**Diagnostics.** Each mirror counts its captures in `CaptureCount`; MirrorKit never reads it.
+**Capture count.** Each mirror counts its captures in `CaptureCount`. The capture budget uses it: each tick a budgeted mirror reports its captures since the last report to `BP_MirrorKitManager`.

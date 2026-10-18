@@ -6,7 +6,7 @@ Players and server hosts can change how MirrorKit mirrors look and how much they
 
 | Where | Who | Format |
 | --- | --- | --- |
-| Launch options in the Unchained Launcher | a player, for their own game | `-Key=Value`, e.g. `-MirrorQuality=Low` |
+| Launch options in the Unchained Launcher (*Settings › Advanced Settings › CLI Arguments*) | a player, for their own game | `-Key=Value`, e.g. `-MirrorQuality=Low` |
 | The map's **Options** box in the main menu, or the server's map options | a server host for everyone on the server; also you when playing offline (you are the server then) | `?Key=Value`, e.g. `?MirrorQuality=High` |
 
 Several options go one after another: `-MirrorQuality=Low -MirrorFocusRate=1000` or `?MirrorQuality=High?MirrorMaxRate=90`. In the Options box, `-Key=Value` does nothing; use `?`.
@@ -21,6 +21,8 @@ From first to last; a later layer wins:
 4. **Server cap (optional):** `?MirrorMaxQuality=` and limits in the map options. Only values above a limit are lowered, for everyone on the server, including players who chose nothing. Without a cap you can raise as you like.
 
 If nobody chooses anything, mirrors run the map's settings.
+
+Example: with `-MirrorQuality=Low` in your launch options and `?MirrorQuality=High` in the Options box when playing offline, you get **Low**: the Options box sets the server values, and your own launch choice comes after them. Only a cap (`?MirrorMaxQuality=`) can limit your choice, and a cap only lowers.
 
 ## Presets
 

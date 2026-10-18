@@ -16,23 +16,21 @@ Without `MirrorKit.pak` a map that uses it still loads, but its mirrors are miss
 
 Every map ships with mirror settings chosen by its maker. You can raise or lower them for your own game, and server hosts can set them for everyone.
 
-**For your own game:** add a launch option in the Unchained Launcher, for example:
+**For your own game:** add a launch option under *Settings › Advanced Settings › CLI Arguments* in the Unchained Launcher, for example:
 
 ```
 -MirrorQuality=Low
 ```
 
 ![Launch option](images/launch-options.png)
-<!-- Placeholder: picture of the launch option in the Unchained Launcher -->
 
-**For a server, or when playing offline:** put it in the map's **Options** box with a `?` instead of a `-`:
+**For a server, or when playing offline:** put it in the map's **Options** box in the Unchained main menu, with a `?` instead of a `-`:
 
 ```
 ?MirrorQuality=High
 ```
 
 ![Options box](images/options-box.png)
-<!-- Placeholder: picture of the main-menu Options box -->
 
 Presets that come with MirrorKit:
 
