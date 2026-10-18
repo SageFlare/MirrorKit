@@ -1,6 +1,6 @@
 # Designing maps for mirror performance
 
-Chivalry 2 is competitive, and many players run 144-240+ FPS. Every live mirror renders the scene again, so a mirror-heavy map can lose a lot of frame rate. This guide covers what a map designer can do about it. The advice is based on measurements, listed at the end.
+Chivalry 2 is competitive, and many players run 144-240+ FPS. Every live mirror renders the scene again, so a mirror-heavy map can lose a lot of frame rate. This guide covers what a map designer can do about it. The advice is based on measurements on [MirrorMaze](https://github.com/SageFlare/MirrorMaze), listed at the end.
 
 ## The one rule: count captures, not mirrors
 
@@ -105,7 +105,7 @@ Judge smoothness on the display you play on: on a 60 Hz screen, uncapped FPS mai
 
 ## How these numbers were measured
 
-- **Map:** the MirrorMaze test map (463 mirror pieces at first, 263 after merging coplanar pieces; 81 point lights), one PC, solo, frame-rate cap off.
+- **Map:** [MirrorMaze](https://github.com/SageFlare/MirrorMaze) (463 mirror pieces at first, 263 after merging coplanar pieces; 81 point lights), one PC, solo, frame-rate cap off.
 - **Machine:** GPU NVIDIA GeForce RTX 4060 (8 GB, driver 32.0.16.1074 = 610.74); CPU Intel Core i7-14700F (20 cores / 28 threads); 32 GB RAM; Windows 11 Home (build 26200). Game: 1920 × 1080 fullscreen, VSync off, `sg.*` quality 3 (Epic) except foliage and shading 1, resolution scale 100 %. Values read on 2026-10-17 from Windows and `GameUserSettings.ini`; earlier measurements are assumed to use the same machine.
 - **Recording:** NVIDIA App performance logs. Each case is recorded as 30 s standing at spawn plus one fixed walking route, repeated in alternating order (2-3 rounds).
 - **Telemetry:** captures per frame come from each mirror's `CaptureCount`, read by test tools. Absolute FPS differs per PC; use the relative changes.
