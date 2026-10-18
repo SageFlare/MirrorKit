@@ -56,7 +56,7 @@ A wall built from several mirror pieces captures once per piece. One mirror cove
 
 ## 3b. Recommended schedule for mirror-heavy maps
 
-Since 0.6.0 these are the **defaults** of every mirror (plus `Resolution` 0.5, `StaggerMode` Distance and `DisableReflectionAO` on). Change them map-wide with `BP_MirrorKitSettings` (per-mirror settings) and `BP_MirrorKitBudget` (the budget rows below); README: *Settings for many mirrors at once*.
+Since 0.6.0 these are the **defaults** of every mirror (plus `Resolution` 0.5, `StaggerMode` Distance and `DisableReflectionAO` on). Change them map-wide with `BP_MirrorKitSettings` (per-mirror settings) and `BP_MirrorKitBudget` (the budget rows below); see *Settings for many mirrors at once* in the [map-making guide](MAP-MAKING.md).
 
 Use time, not frames, and let a budget trim the far mirrors:
 
