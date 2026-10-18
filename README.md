@@ -2,7 +2,7 @@
 
 Mirrors for Chivalry 2 Unchained maps: live reflections that show players, cheap shiny surfaces and breakable mirror tiles. MirrorKit is a **library**. It adds no map by itself; maps use its assets and require it to be installed.
 
-Version **0.5.0**. Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
+Version **0.6.0**. Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The optional [MirrorLab](https://github.com/SageFlare/MirrorLab) map demonstrates every mirror type.
 
 ## What you need
 
@@ -70,7 +70,7 @@ Raising `Depth` later means re-checking these gaps: a deeper stack needs more ro
 - **Use your own meshes and materials for structure.** Place only kit actors and kit mirror materials. A player without MirrorKit then still gets a playable map instead of holes in it.
 - **Your PAK must not contain MirrorKit's files.** Cooking your map also writes cooked kit files to `Saved/Cooked/.../Content/Mods/MirrorKit/`; package only your own mod folder.
 - **Keep the kit's enums out of native conversion.** If your project uses Blueprint nativization:
-  - Add `/Game/Mods/MirrorKit/Blueprints/E_MirrorResolutionProfile` and `/Game/Mods/MirrorKit/Blueprints/E_MirrorStaggerMode` as `+ExcludedAssets` under `[BlueprintNativizationSettings]` in `Config/DefaultEditor.ini`.
+  - Add `/Game/Mods/MirrorKit/Blueprints/E_MirrorResolutionProfile`, `/Game/Mods/MirrorKit/Blueprints/E_MirrorStaggerMode` and `/Game/Mods/MirrorKit/Blueprints/E_MirrorSettingsSource` as `+ExcludedAssets` under `[BlueprintNativizationSettings]` in `Config/DefaultEditor.ini`.
   - Otherwise UE 4.25 can leave them out of the PAK.
   - Recook referring maps after changing this.
 - Add MirrorKit as a dependency in your `mod.json`.
@@ -97,35 +97,57 @@ Each mirror picks where its per-mirror settings come from with **`SettingsSource
 - **Whole map:** edit `BP_MirrorKitSettings` (or leave it out and keep the defaults).
 - **Groups:** right-click in the Content Browser › *Miscellaneous › Data Asset* › `BP_MirrorProfile` to make a profile. Set `SettingsSource` to `Profile` on the group and pick it; editing the profile changes the whole group. Shipped: `Profiles/MP_MirrorMaze` (the MirrorMaze schedule, so a group keeps it if you change the map settings) and `Profiles/MP_HighDetail` (full resolution at 120 updates/s).
 - **One-offs:** set `SettingsSource` to `Own` and edit that mirror.
-- **Budget:** edit `BP_MirrorKitBudget`; mirrors, profiles and settings actors never carry it. Without a budget actor the budget is **off**. Placing one turns it on with its defaults (budget 2, max ×4, min 30 updates/s, focus 800 cm / 15°), visible and editable on the actor. To keep one mirror out of it (e.g. a showcase mirror), tick its `ExcludeFromBudget`.
+- **Budget:** edit `BP_MirrorKitBudget`; mirrors, profiles and settings actors never carry it. At runtime a hidden `BP_MirrorKitManager` (spawned automatically, nothing to place) applies it. Without a budget actor the budget is **off**. Placing one turns it on with its defaults (budget 2, max ×4, min 30 updates/s, focus 800 cm / 15°), visible and editable on the actor. To keep one mirror out of it (e.g. a showcase mirror), tick its `ExcludeFromBudget`.
 
-Per-mirror performance settings: `Resolution`, `UpdateEveryNFrames`, `TargetUpdateRate`, `FocusUpdateRate`, `StaggerMode`, `DistanceStaggerStart`, `DistanceThrottle`, `DistanceThrottleStart`, `FarUpdateEveryNFrames`, `CaptureDistance`, `MaxViewDistance`, `VisibilityTolerance`, `OffscreenUpdateEveryNFrames`, `ChecksEveryNFrames`, `DisableReflectionAO`. Look, body, depth, partner and tile settings stay on each mirror. Settings are resolved once, when the match starts. Two-sided back faces follow their front face.
+Per-mirror performance settings: `Resolution`, `UpdateEveryNFrames`, `TargetUpdateRate`, `FocusUpdateRate`, `StaggerMode`, `DistanceStaggerStart`, `CaptureDistance`, `MaxViewDistance`, `VisibilityTolerance`, `ChecksEveryNFrames`, `DisableReflectionAO`, `SmoothUpdateInterval`, `AnchorUpdateCadence`. Look, body, depth, partner and tile settings stay on each mirror. Settings are resolved when the match starts; player and server quality choices are applied on top (again if the server options arrive later).
 
-**For a single sharp, every-frame mirror** (the pre-0.8.0 defaults), set `SettingsSource` `Own`, `Resolution` 1, `TargetUpdateRate` 0, `UpdateEveryNFrames` 1, `StaggerMode` None, `DisableReflectionAO` off, and `ExcludeFromBudget` on.
+**For a single sharp, every-frame mirror** (the defaults before 0.6.0), set `SettingsSource` `Own`, `Resolution` 1, `TargetUpdateRate` 0, `UpdateEveryNFrames` 1, `StaggerMode` None, `DisableReflectionAO` off, and `ExcludeFromBudget` on.
+
+## How the settings pieces fit
+
+| Piece | Who makes it | Job |
+| --- | --- | --- |
+| `BP_MirrorKitSettings` | map maker (placed, one per map) | default look and schedule for every `MapDefault` mirror |
+| `BP_MirrorProfile` | map maker (data asset) | the same settings for a group of mirrors (`SettingsSource` = `Profile`) |
+| `BP_MirrorKitBudget` | map maker (placed, optional) | budget rules; without it the budget is off |
+| `BP_MirrorQuality` (`MQ_*`) | kit / anyone (data assets) | MirrorQuality presets for players and servers |
+| `BP_MirrorKitManager` | spawned automatically by the first mirror, every machine | reads the budget actor and the quality options once, smooths the FPS and runs the budget each frame |
+| `BP_MirrorKitNet` | spawned automatically by the manager on a server with mirror URL options | carries the server options to clients |
+
+Each mirror: own values, then `BP_MirrorKitSettings` or its profile (`ResolveSettings`), then the manager's quality layers and budget rules; afterwards it only re-reads when the manager reports a change.
 
 ## Mirror quality for players and servers
 
-Players and server hosts can lower mirror cost without changing the map. A **MirrorQuality** only ever lowers what the map set (caps), so the map's own choices stay intact; when several apply, each value takes the strictest.
+The map sets the **defaults** (what the map maker thinks plays well on an average PC); it never limits anyone. Players and server hosts choose a **MirrorQuality** above or below it. Layers, later wins:
+
+1. **Map:** `BP_MirrorKitSettings`, profiles and per-mirror values.
+2. **Server values (optional):** map URL options `?MirrorQuality=Ultra` and/or single values (`?MirrorFocusRate=1000`, …). Everyone on that server starts from these instead of the map values.
+3. **Player choice (optional):** launch option `-MirrorQuality=…` and single values (below). Up or down, freely.
+4. **Server cap (optional, opt-in):** map URL options `?MirrorMaxQuality=Medium` and/or single limits. Only values above the limit are lowered, for everyone on that server, including players who chose nothing. Without a cap, players can raise as they like.
 
 | Who | How |
 | --- | --- |
-| Player | Launch option `-MirrorQuality=Low` (or `Medium`, `High`, `Off`) |
-| Player, custom values | Launch options `-MirrorMaxResolution=0.4`, `-MirrorMaxRate=45` (updates per second), `-MirrorMaxDistance=1500` (cm), `-MirrorMaxCaptures=2` (captures per frame), `-MirrorNoAO`, `-MirrorsOff` |
+| Player, preset | `-MirrorQuality=Low` (or `Off`, `Medium`, `High`, `Ultra`) |
+| Player, single values | `-MirrorResolution=1`, `-MirrorRate=144` (updates per second), `-MirrorFocusRate=1000` (focused mirrors; 1000 = every frame), `-MirrorDistance=4000` (cm), `-MirrorCaptures=2` (budget; 0 = off), `-MirrorAO=1` (0 off, 1 on), `-MirrorSmooth=1` and `-MirrorAnchor=0` (smoothing switches, 0 or 1), `-MirrorsOff`. Applied after the preset |
 | Player, custom preset | `-MirrorQuality=/Game/Mods/<Mod>/<Asset>`: any `BP_MirrorQuality` data asset in a PAK the player has |
-| Server host (optional) | Map URL option `?MirrorQuality=Low`: sent to every player as a maximum |
+| Server host, values | `?MirrorQuality=<preset or asset path>` and the same single values as players, as URL options: `?MirrorResolution=`, `?MirrorRate=`, `?MirrorFocusRate=`, `?MirrorDistance=`, `?MirrorCaptures=`, `?MirrorAO=`, `?MirrorSmooth=`, `?MirrorAnchor=` (applied after the preset). In the Unchained main menu, the map **Options** box is this URL: use `?Key=Value`, not `-Key=Value` |
+| Server host, cap | `?MirrorMaxQuality=<preset or asset path>` (its values become limits), `?MirrorMaxResolution=0.5`, `?MirrorMaxRate=90` (both update rates), `?MirrorMaxDistance=2000`, `?MirrorMaxCaptures=3`, `?MirrorNoAO`, `?MirrorsOff` |
 
-| Preset (`Quality/`) | Resolution | Updates/s | Distance | Captures/frame | AO |
-| --- | --- | --- | --- | --- | --- |
-| `MQ_High` | map | map | map | map | map |
-| `MQ_Medium` | ≤ 0.5 | ≤ 60 | ≤ 20 m | ≤ 3 | off |
-| `MQ_Low` | ≤ 0.35 | ≤ 45 | ≤ 15 m | ≤ 2 | off |
-| `MQ_Off` | mirrors show a still environment image; no live reflections | | | | |
+| Preset (`Quality/`) | Resolution | Updates/s | Focused updates/s | Distance | Captures/frame | AO | Smooth | Anchor |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `MQ_Ultra` | 1.0 | 144 | every frame | 40 m | budget off | on | on | off |
+| `MQ_High` (the MirrorMaze schedule) | 0.5 | 90 | 144 | 25 m | 2 | off | on | off |
+| `MQ_Medium` | 0.5 | 60 | 60 | 20 m | 3 | off | on | off |
+| `MQ_Low` | 0.35 | 45 | 45 | 15 m | 2 | off | on | off |
+| `MQ_Off` | mirrors show plain dark glass; no live reflections | | | | | | | |
 
-Mirrors only render on players' machines: a dedicated server does no mirror rendering at all, so hosting costs no GPU. The server cap is for hosts who want every player on lighter settings. Custom presets and values are client-side; the server does not need them. A player's custom preset needs its PAK on that player's machine (whether Unchained lets a client load a PAK the server does not list is untested; the inline values need no PAK). An unknown preset name changes nothing. Quality is applied when the match starts (and on clients when the server cap arrives).
+Every preset value is written out; when nobody chooses a preset, mirrors run the map maker's values. Mirrors with `ExcludeFromBudget` stay out of any budget a preset or cap sets.
+
+Mirrors only render on players' machines: a dedicated server does no mirror rendering at all, so hosting costs no GPU. The server shares its URL options with clients through `BP_MirrorKitNet`. A custom preset needs its PAK on every machine that uses it; single values need no PAK. An unknown preset name changes nothing. Quality is applied when the match starts (and again on clients when the server options arrive).
 
 ## Mirror settings
 
-All settings are on every placed mirror. The performance defaults are the MirrorMaze schedule (kit 0.8.0; see above for the pre-0.8.0 sharp, every-frame values). With `SettingsSource` `MapDefault` or `Profile`, the per-mirror performance settings come from the settings actor or profile when there is one; the budget is not a mirror setting (see the budget table below).
+All settings are on every placed mirror. The performance defaults are the MirrorMaze schedule (see above for the sharp, every-frame values used before 0.6.0). With `SettingsSource` `MapDefault` or `Profile`, the per-mirror performance settings come from the settings actor or profile when there is one; the budget is not a mirror setting (see the budget table below).
 
 **Look and body**
 
@@ -165,17 +187,15 @@ All settings are on every placed mirror. The performance defaults are the Mirror
 | `UpdateEveryNFrames` | 2 | Update every N frames (used when `TargetUpdateRate` is 0); skipped frames reuse the last reflection. 2 roughly halves capture work |
 | `StaggerMode` | Distance | Spread updates across frames: `Distributed` (all mirrors) or `Distance` (mirrors at or beyond `DistanceStaggerStart`). Needed with N > 1 to keep worst-case frames smooth |
 | `DistanceStaggerStart` | 1000 cm | Face distance where `Distance` staggering begins |
-| `DistanceThrottle` | off | Use `FarUpdateEveryNFrames` at or beyond `DistanceThrottleStart` |
-| `DistanceThrottleStart` | 1500 cm | Face distance where throttling begins |
-| `FarUpdateEveryNFrames` | 4 | Update interval for throttled (distant) mirrors |
 | `CaptureDistance` | 2500 cm | Stop updating beyond this face distance (the mirror keeps its last image) |
 | `MaxViewDistance` | 0 | Limit how far each capture renders into the reflected scene; 0 = unlimited |
 | `VisibilityTolerance` | 0.2 s | Stop updating when neither this mirror nor its partner has been drawn for this long |
-| `OffscreenUpdateEveryNFrames` | 1 | While the whole face is outside your view: 1 unchanged, N > 1 every N frames, 0 frozen |
 | `DisableReflectionAO` | on | Skip ambient occlusion inside this mirror's reflections (cheaper, rarely visible) |
-| `TargetUpdateRate` | 90 (0 = off) | Target reflection updates per second; when set, replaces `UpdateEveryNFrames` with `round(FPS ÷ rate)` frames, at least 1 (e.g. 90: every 3 frames at 300 FPS, every frame at 60). Keep the rate well below your usual FPS: near 2 × rate, a mirror that switches to every frame can drag FPS down and stay there |
-| `FocusUpdateRate` | 0 (off) | Updates per second for focused mirrors (near you or near the view centre, using the budget focus distance and angle). Keeps close reflections smooth at high uncapped FPS, where the normal rate holds each reflection for several frames; e.g. 1000 = every frame. Capped by a player MirrorQuality rate limit |
-| `ChecksEveryNFrames` | 4 | Run the expensive per-mirror checks (distance, off-screen, focus) only on the mirror's due frames and otherwise every N frames; 1 = every frame (pre-0.5.3) |
+| `TargetUpdateRate` | 90 (0 = off) | Target reflection updates per second; when set, replaces `UpdateEveryNFrames` with `round(FPS ÷ rate)` frames, at least 1 (e.g. 90: every 3 frames at 300 FPS, every frame at 60). Below about 1.5 × the rate (135 FPS for 90/s) every update is every frame |
+| `FocusUpdateRate` | 144 (0 = off) | Updates per second for focused mirrors: face within 800 cm or centre within 15° of your view (the budget actor's `BudgetFocusDistance`/`BudgetFocusAngle` when one is placed). Keeps close reflections smooth at high uncapped FPS, where 90/s holds each reflection for several frames. Costs nothing below about 135 FPS (90/s is already every frame there); 1000 = every frame. Players can change it with MirrorQuality (`-MirrorFocusRate=`); a server cap can limit it |
+| `ChecksEveryNFrames` | 4 | Run the expensive per-mirror checks (distance, focus) only on the mirror's due frames and otherwise every N frames; 1 = every frame |
+| `SmoothUpdateInterval` | on | Base the update interval on the FPS averaged over ~0.5 s and keep it until the FPS clearly moves, so it does not flip with frame-time noise. Removes most jitter at fluctuating or uncapped FPS (measured: about 0-3 % FPS uncapped, none at a 240 cap) |
+| `AnchorUpdateCadence` | off | Optional: count each interval from the mirror's last update, so a changed interval never produces one short or long gap (off = fixed slots `(FrameCounter + phase) % N`). No visible gain over smoothing alone in our tests and about 2-5 % FPS uncapped, so it is off by default; worth trying on PCs where smoothing alone still judders |
 | `ExcludeFromBudget` | off | Keep this mirror out of the map-wide budget: never counted and never slowed down by it |
 
 **Budget** (map-wide, on `BP_MirrorKitBudget`; off without one; defaults below are the actor's)
@@ -198,7 +218,7 @@ For a map with many mirrors, start with:
 
 - **Bake your lighting** (static lights). Each capture otherwise recalculates movable lights. This was the biggest single gain: +23-31% FPS.
 - **Use fewer, longer mirrors** instead of many pieces on the same wall.
-- `UpdateEveryNFrames` 2 with `StaggerMode` Distance, `Resolution` 0.5, `DisableReflectionAO`, and `OffscreenUpdateEveryNFrames` 0.
+- `UpdateEveryNFrames` 2 with `StaggerMode` Distance, `Resolution` 0.5 and `DisableReflectionAO` (all defaults).
 
 **[Designing maps for mirror performance](docs/MAP-OPTIMIZATION.md)** has the measurements, the visual cost of each option and layout advice. In the test maze, these steps took walking FPS from 136 to about 298 with every reflection still live.
 
@@ -214,12 +234,12 @@ Rough costs measured in MirrorLab (one PC, solo, uncapped):
 
 ## How a mirror decides to update
 
-Each frame, a mirror goes through four steps:
+Each frame, a mirror goes through three steps:
 
-1. **Schedule.** Every tick increments `FrameCounter`. An update is due when `(FrameCounter + phase) % N == 0`.
-   - `N` is `UpdateEveryNFrames`, or `FarUpdateEveryNFrames` when throttled, or the off-screen interval, multiplied by the capture-budget multiplier (1 when `CaptureBudget` is off).
+1. **Schedule.** Every tick increments `FrameCounter`. An update is due when `(FrameCounter + phase) % N == 0`; with `AnchorUpdateCadence` (optional), after the first update it is due when `N` frames have passed since the last one.
+   - `N` is `round(FPS ÷ TargetUpdateRate)` (at least 1; with `SmoothUpdateInterval` the FPS is averaged over ~0.5 s and `N` changes only when the ratio is 0.65 or more away from it), or `UpdateEveryNFrames` when the rate is 0. Focused mirrors use `FocusUpdateRate` instead when that gives a shorter interval. Unfocused mirrors are then multiplied by the capture-budget multiplier (1 when `CaptureBudget` is off), never below `MinUpdateRate`.
    - `phase` is 0 unless the mirror is staggered (or the budget multiplier is above 1); then it is `floor(PhaseHash × N)`. `PhaseHash` is computed once at start-up from the mirror's position (`Fraction(Sin(0.0129898X + 0.078233Y + 0.037719Z) × 43758.5453)`), which spreads grid-aligned mirrors evenly.
-   - **Capture budget** (`CaptureBudget` > 0): mirrors report their captures to one shared owner mirror. Once a frame the owner smooths the total, and at most every 0.2 s steps a shared multiplier up (load over budget) or down (load at one step lower would stay within 90 % of budget), from 1 to `CaptureBudgetMaxMultiplier`. While the multiplier is above 1, *focused* mirrors (face within `BudgetFocusDistance`, or centre inside the `BudgetFocusAngle` view cone) keep their unstretched interval, so the mirrors you look at stay smooth.
+   - **Capture budget** (`CaptureBudget` > 0): mirrors report their captures to the hidden `BP_MirrorKitManager`. Once a frame it smooths the total, and at most every 0.2 s steps a shared multiplier up (load over budget) or down (the load at one step lower would fit the budget), from 1 to `CaptureBudgetMaxMultiplier`. While the multiplier is above 1, *focused* mirrors (face within `BudgetFocusDistance`, or centre inside the `BudgetFocusAngle` view cone) keep their unstretched interval, so the mirrors you look at stay smooth.
 2. **Eligibility.** All of these must hold:
    - you have a local camera;
    - the face distance is under `CaptureDistance`;
@@ -227,14 +247,13 @@ Each frame, a mirror goes through four steps:
    - the mirror (or its partner) was drawn within `VisibilityTolerance`.
 
    "Drawn" includes being seen inside another mirror. Distances check the centre distance first and compute the exact nearest point only when needed.
-3. **Off screen.** If `OffscreenUpdateEveryNFrames` is not 1, the four face corners are tested against your view (with a 15% margin). Walls hiding a mirror in your view are not detected.
-4. **Capture.** Level 1 is rendered (fitted to the visible part with `FitVisible`), then deeper partner levels.
+3. **Capture.** Level 1 is rendered (fitted to the visible part with `FitVisible`), then deeper partner levels.
 
 Independent mirrors show other mirrors' images inside their reflection. Those images were rendered for your own viewpoint, so mirror-in-mirror repetitions are plausible but not geometrically exact. Partners give exact nested reflections, at the cost of one render per level.
 
 `DisableReflectionAO` works through a stored post-process override (AO intensity 0) whose blend weight the checkbox raises at start-up.
 
-A mirror's size and settings are read when play starts. Do not resize live mirrors at runtime.
+A mirror's size, settings, position and facing are read when play starts (the camera is read once per tick). Do not resize live mirrors at runtime; after moving or turning one at runtime, call its `RefreshMirrorTransform`.
 
 ## Partners and tunnels
 
@@ -281,10 +300,10 @@ Each player's game renders mirrors from their own camera, so everyone sees a cor
 
 | Path (`/Game/Mods/MirrorKit/`) | Assets |
 | --- | --- |
-| `Blueprints/` | `BP_CaptureMirror`; map actors `BP_MirrorKitSettings`, `BP_MirrorKitBudget`; presets `BP_Mirror_Funhouse`, `BP_Mirror_Headless`, `BP_Mirror_StretchHead`, `BP_Mirror_Ghost`; tiles `BP_MirrorTileLive`, `BP_MirrorTile`, `BP_MirrorTile_NoSnow`; stand-ins `BP_MirrorDoubleFull`, `BP_MirrorDouble`, `BP_MirrorDoubleStretch` (spawned automatically); profile data asset class `BP_MirrorProfile`; quality data asset class `BP_MirrorQuality`; `BP_MirrorKitNet` (spawned by the server for `?MirrorQuality=`); enums `E_MirrorResolutionProfile`, `E_MirrorStaggerMode`, `E_MirrorSettingsSource` |
-| `Quality/` | MirrorQuality presets `MQ_Off`, `MQ_Low`, `MQ_Medium`, `MQ_High` |
+| `Blueprints/` | `BP_CaptureMirror`; map actors `BP_MirrorKitSettings`, `BP_MirrorKitBudget`; runtime `BP_MirrorKitManager` (spawned automatically by the first mirror); presets `BP_Mirror_Funhouse`, `BP_Mirror_Headless`, `BP_Mirror_StretchHead`, `BP_Mirror_Ghost`; tiles `BP_MirrorTileLive`, `BP_MirrorTile`, `BP_MirrorTile_NoSnow`; stand-ins `BP_MirrorDoubleFull`, `BP_MirrorDouble`, `BP_MirrorDoubleStretch` (spawned automatically); profile data asset class `BP_MirrorProfile`; quality data asset class `BP_MirrorQuality`; `BP_MirrorKitNet` (spawned on a server whose map URL has mirror options); enums `E_MirrorResolutionProfile`, `E_MirrorStaggerMode`, `E_MirrorSettingsSource` |
+| `Quality/` | MirrorQuality presets `MQ_Off`, `MQ_Low`, `MQ_Medium`, `MQ_High`, `MQ_Ultra` |
 | `Profiles/` | MirrorProfiles `MP_MirrorMaze` (MirrorMaze schedule), `MP_HighDetail` |
-| `Materials/` | `M_MirrorEnvironment`, `M_MirrorPolished` (screen-space only), `M_MirrorDarkCenter`, `M_MirrorCracked`; internal: `M_CaptureMirror`, `M_Matte` |
+| `Materials/` | `M_MirrorEnvironment`, `M_MirrorPolished` (screen-space only), `M_MirrorDarkCenter`, `M_MirrorCracked`; internal: `M_CaptureMirror`, `M_Matte`, `M_MirrorOff` (mirrors switched off) |
 | `Meshes/` | `SM_MirrorTile`, `SM_MirrorTile_Cracked`; internal: `SM_MKCube`, `SM_MirrorTileCore` |
 | `Textures/` | `TC_MK_DefaultEnvironment` (default cubemap) |
 
@@ -292,38 +311,28 @@ Release files: `MirrorKit.pak` (+ `.sha256`), `MirrorKit_Source.zip` (`Content/`
 
 ## For maintainers
 
-**Reading the Blueprint.** Open `BP_CaptureMirror`. EventGraph routes BeginPlay to `InitializeMirror` and Tick to `UpdateMirror`; double-click the calls to follow the work. Coloured `MirrorKit |` comment blocks explain each function, and functions are grouped by category:
+**Reading the Blueprint.** Open `BP_CaptureMirror`. EventGraph resolves the settings, finds the manager and applies its quality, then routes to `InitializeMirror`; Tick goes to `UpdateMirror`; double-click the calls to follow the work. Each function's tooltip says what it does; inside larger functions, comment boxes mark each step (what that group of nodes does). `BP_MirrorKitManager`, the tile and the stand-in Blueprints follow the same style. Functions are grouped by category:
 
 | Category | Functions |
 | --- | --- |
-| Lifecycle | `InitializeMirror`, `UpdateMirror` |
-| Setup | `ResolveSettings` (first at BeginPlay), `ConfigureBackingAndDepth`, `ConfigureTileMode`, `InitializeCaptureResources`, `InitializeFirstCapture`, `InitializeDeepCapture`, `EnsurePlayerStandIn` |
-| Scheduling | `ResolvePartner`, `AdvanceCaptureSchedule`, `CheckCaptureEligibility`, `IsWithinFaceDistance`, `DistanceToMirrorFace`, `UpdateOffscreenFlag` |
+| Lifecycle | `InitializeMirror`, `UpdateMirror`, `SyncWithManager` |
+| Setup | `ResolveSettings` (first at BeginPlay), `SnapshotQualityBase`, `EnsureManager`, `ApplyManagerQuality`, `ReadManagerBudget`, `ApplyQualityValues`, `ApplyQualityCaps`, `ApplyMirrorsOff`, `RefreshMirrorTransform`, `ConfigureBackingAndDepth`, `ConfigureTileMode`, `InitializeCaptureResources`, `InitializeFirstCapture`, `InitializeDeepCapture`, `EnsurePlayerStandIn` |
+| Scheduling | `ResolvePartner`, `UpdateCaptureBudget`, `AdvanceCaptureSchedule`, `CheckCaptureEligibility`, `IsWithinFaceDistance`, `DistanceToMirrorFace` |
 | Capture | `CaptureReflectionStack`, `CapturePortalFirst`, `CapturePortalDeep`, `CaptureLegacyView` |
 | Projection | `ReflectViewAcrossPlane`, `ProjectMirrorRay`, `FitMirrorInterval`, `ComputeVisibleMirrorBounds` (pure maths) |
 | Visibility | `RefreshCaptureHiddenActors`, `HideActorFromActiveCaptures`, `HidePartnerPanelsForCapture` |
 
-**Diagnostics.** Each mirror counts its captures in `CaptureCount`. `TelemetryMark` is reserved for telemetry actors that read the counters. MirrorKit never reads either value.
+`BP_MirrorKitManager`: `ApplyServerOptions` (parses the quality layers), `ResolveBudget` (reads `BP_MirrorKitBudget`), and a Tick that smooths the FPS and steps the budget multiplier.
 
-**AgGraphTools.** [`Tools/AgGraphTools`](Tools/AgGraphTools) is the editor-only UE 4.25 plugin that MirrorLab's generator uses to build MirrorKit's Blueprint graphs from Python, a capability UE 4.25 Python lacks. Players, hosts and mappers do not need it. `Tools/annotate_blueprints.py` reapplies the comment blocks without changing logic.
+**Diagnostics.** Each mirror counts its captures in `CaptureCount` for test tools; MirrorKit never reads it.
+
+**AgGraphTools.** [`Tools/AgGraphTools`](Tools/AgGraphTools) is the editor-only UE 4.25 plugin MirrorKit's Blueprint graphs are generated with from Python, a capability UE 4.25 Python lacks. Players, hosts and mappers do not need it. [`Tools/annotate_blueprints.py`](Tools/annotate_blueprints.py) draws the step comment boxes. Each release is regenerated in place (asset identity and map references kept), checked by runtime behaviour tests in the editor, cold-compiled, validated and then cooked.
 
 ## Changelog
 
 | Version | Changes |
 | --- | --- |
-| 0.12.0 (internal) | • `FocusUpdateRate`: a faster update rate for focused (near or central) mirrors, against sideways jitter at high uncapped FPS. Off by default until tested. |
-| 0.11.0 (internal) | • **MirrorQuality** for players and servers: presets (`MQ_Off`/`Low`/`Medium`/`High`, `BP_MirrorQuality` data assets), `-MirrorQuality=` launch option (preset name or asset path), inline `-Mirror*` caps, optional server `?MirrorQuality=` shared through `BP_MirrorKitNet`. Caps only lower the map settings. |
-| 0.10.1 (internal) | • No `BP_MirrorKitBudget` in the map = budget off (mirrors no longer carry hidden default budget numbers). |
-| 0.10.0 (internal) | • The budget is map-wide only: its five settings are no longer on mirrors. `BP_MirrorKitBudget` sets them on every mirror; without one the kit defaults apply (budget 2, max ×4, min 30 updates/s, focus 800 cm / 15°).<br>• New per-mirror `ExcludeFromBudget`. |
-| 0.9.0 (internal) | • **Removed the generated back face:** `TwoSided`, `TwinGap`, `TwinGapWasAdjusted`, `BackPartner`, `BackPartnerBackFace`, `PartnerBackFace` and the `BP_Mirror_TwoSided` preset. Place a second mirror on the back instead (spacing rules in *Place a live mirror*).<br>• `BP_MirrorTileLive` gets `BackWall` for its back face (was the front mirror's generated twin). |
-| 0.8.0 (internal) | • Budget moved to its own map actor **`BP_MirrorKitBudget`**, applied to every mirror (also `Profile` and `Own`); `BP_MirrorKitSettings` and profiles carry only per-mirror settings.<br>• **Defaults changed:** mirrors, both actors and profiles default to the MirrorMaze schedule (`Resolution` 0.5, `TargetUpdateRate` 90, `StaggerMode` Distance, `DisableReflectionAO` on, `CaptureBudget` 2, `MinUpdateRate` 30). Placed mirrors that kept the old defaults switch to these. |
-| 0.7.1 (internal) | • Profile `MP_MirrorMaze`: the MirrorMaze per-mirror schedule for a group of mirrors. |
-| 0.7.0 (internal) | • Settings hierarchy: map-wide `BP_MirrorKitSettings` actor (defaults = recommended schedule), reusable `BP_MirrorProfile` data assets, per-mirror `SettingsSource` (`MapDefault` / `Profile` / `Own`). Existing maps without a settings actor behave as before.<br>• Details-panel categories and tooltips (*MirrorKit › Settings / Performance / Budget / Look*, internal state under *MirrorKit › Internal*). |
-| 0.5.5 (internal) | • `TargetUpdateRate` and `MinUpdateRate` round instead of floor (a 120 Hz target dropped to every frame below 240 FPS and held FPS there; 59.9 FPS ÷ 30 floored to 1). |
-| 0.5.4 (internal) | • Time-based scheduling: `TargetUpdateRate` and `MinUpdateRate` (both off by default), so mirrors stay smooth at low or capped frame rates and the budget backs off where it cannot help. |
-| 0.5.3 (internal) | • Lean tick: `ChecksEveryNFrames` (default 4) skips the expensive checks on frames where a mirror is not due. Measured reason: on MirrorMaze the per-tick Blueprint checks were the bottleneck (turning the off-screen test off gave +32 FPS walking).<br>• The focus test runs only when focus is configured. |
-| 0.5.2 (internal) | • Focus-aware budget: `BudgetFocusDistance` / `BudgetFocusAngle` keep near and central mirrors at their normal pace.<br>• Budget steps back down when the lower step fits the budget (was 90 %, which could stick at ×2). |
-| 0.5.1 (internal) | • Adaptive `CaptureBudget` (default off) with `CaptureBudgetMaxMultiplier`.<br>• Better stagger spread: the phase hash is computed once at start-up and no longer clusters on grid-aligned maps (old hash put 193 of 258 MirrorMaze mirrors on one phase at N = 2). |
+| 0.6.0 | Settings, budget, quality and smoothness release:<br>• **Settings for many mirrors:** map-wide `BP_MirrorKitSettings`, reusable `BP_MirrorProfile` data assets (`MP_MirrorMaze`, `MP_HighDetail`), per-mirror `SettingsSource`; details-panel categories and tooltips.<br>• **New defaults** = the schedule measured on MirrorMaze: `Resolution` 0.5, `TargetUpdateRate` 90 updates/s, `FocusUpdateRate` 144 for near/central mirrors, `StaggerMode` Distance, `DisableReflectionAO` on, `ChecksEveryNFrames` 4. Mirrors that kept the old defaults switch to these.<br>• **Capture budget** on its own map actor `BP_MirrorKitBudget` (off without one): adaptive multiplier, `MinUpdateRate`, focus distance/angle; per-mirror `ExcludeFromBudget`.<br>• **MirrorQuality** for players and servers: presets `MQ_Off`/`Low`/`Medium`/`High`/`Ultra` (all values written out), `-MirrorQuality=` and single values on the command line, server values and an opt-in server cap on the map URL, shared with clients through `BP_MirrorKitNet`. `MQ_Off` shows plain dark glass and is reversible.<br>• **Smoothness at high FPS:** `SmoothUpdateInterval` (on) steadies the update interval when FPS fluctuates; optional `AnchorUpdateCadence`; time-based rates round instead of floor; better stagger spread on grid-aligned maps.<br>• **Faster:** one hidden `BP_MirrorKitManager` per machine runs the FPS smoothing, budget and quality parsing; mirrors cache the camera, their transform and their interval (these changes alone: +3-7 % FPS on a 268-mirror map).<br>• **Removed:** the generated back face (`TwoSided`, `TwinGap`, `BackPartner`, `BP_Mirror_TwoSided`; place a second mirror behind instead, `BP_MirrorTileLive` gained `BackWall`), the off-screen test (`OffscreenUpdateEveryNFrames`; it cost more than it saved on large maps), the distance throttle and `TelemetryMark`. Maps that set them still load; the values are ignored.<br>• Step-by-step comment boxes inside every kit Blueprint. |
 | 0.5.0 | Performance and usability release (developed as internal builds after 0.4.0):<br>• Independent mirrors: no pairing needed; one capture per face.<br>• Cheaper per-frame work: checks before hidden-list maintenance, cached stand-ins, shared Blueprint functions, bounded loops (behaviour verified identical) and editor comment blocks.<br>• Distances measured to the nearest point of the mirror face, centre-first and only when a feature uses them.<br>• Exact update-slot formula `(FrameCounter + phase) % N`.<br>• New settings `OffscreenUpdateEveryNFrames` and `DisableReflectionAO`; two-sided back faces inherit them.<br>• `CaptureCount` / `TelemetryMark` diagnostics.<br>• README rewritten; map-design guide `docs/MAP-OPTIMIZATION.md`. |
 | 0.4.0 | Front/back partner targeting for two-sided mirrors; spacing safeguards (`Depth` 1-10, `TwinGap` minimum, clearance guide); default depth 1 |
 | 0.3.0 | First public release |

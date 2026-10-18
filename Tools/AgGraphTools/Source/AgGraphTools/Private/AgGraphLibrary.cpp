@@ -496,6 +496,21 @@ namespace
 	}
 }
 
+bool UAgGraphLibrary::AddStructVariable(UBlueprint* Blueprint, FName VariableName, UScriptStruct* Struct)
+{
+	if (!Blueprint || !Struct) return false;
+	FEdGraphPinType Type;
+	Type.PinCategory = UEdGraphSchema_K2::PC_Struct;
+	Type.PinSubCategoryObject = Struct;
+	if (!FBlueprintEditorUtils::AddMemberVariable(Blueprint, VariableName, Type))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AgGraph: cannot add variable '%s'"), *VariableName.ToString());
+		return false;
+	}
+	FBlueprintEditorUtils::SetBlueprintOnlyEditableFlag(Blueprint, VariableName, false);
+	return true;
+}
+
 bool UAgGraphLibrary::AddFloatVariable(UBlueprint* Blueprint, FName VariableName)
 {
 	return AddScalarVariable(Blueprint, VariableName, UEdGraphSchema_K2::PC_Float);

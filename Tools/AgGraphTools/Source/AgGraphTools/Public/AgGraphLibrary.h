@@ -111,6 +111,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool AddBoolVariable(UBlueprint* Blueprint, FName VariableName);
 
+	/** Adds a struct member variable (e.g. Vector, Rotator), instance-editable like the other adders. */
+	UFUNCTION(BlueprintCallable, Category = "AgGraph")
+	static bool AddStructVariable(UBlueprint* Blueprint, FName VariableName, UScriptStruct* Struct);
+
 	/** Adds an instance-editable float variable; set its default on the CDO after compiling. */
 	UFUNCTION(BlueprintCallable, Category = "AgGraph")
 	static bool AddFloatVariable(UBlueprint* Blueprint, FName VariableName);

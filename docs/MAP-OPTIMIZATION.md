@@ -51,12 +51,12 @@ A wall built from several mirror pieces captures once per piece. One mirror cove
 - `UpdateEveryNFrames = 2` halves capture work. Measured: about −2.5 to −3.3 ms per frame (136 → 208 FPS walking at the time). Fast motion in reflections is slightly less smooth; testers noticed it only when looking for it.
 - On its own, every mirror updates on the same frame, so frames alternate heavy and light, and the worst frames (1% low) do not improve.
 - Add `StaggerMode = Distance` (or `Distributed`) to spread mirrors across frames. Measured: 1% low improved from about 110 to 138 FPS walking (187 standing), with the best average as well.
-- Staggering is phase-based: `(FrameCounter + phase) % N == 0`, with the phase taken from the mirror's position. Since 0.5.1 the phase hash spreads grid-aligned mirrors evenly (the old one clustered them on one phase).
-- **Large maps can be CPU-bound on Blueprint ticks.** On MirrorMaze (263 mirrors) `OffscreenUpdateEveryNFrames` 0 cost more processor time than it saved: switching it to 1 gave +52 FPS standing and +32 walking (MirrorMazeRenderTests set 12). Captures had become cheap (about 0.085 ms each). Keep the lean tick (`ChecksEveryNFrames` 4, the default since 0.5.3).
+- Staggering is phase-based: `(FrameCounter + phase) % N == 0`, with the phase taken from the mirror's position. Since 0.6.0 the phase hash spreads grid-aligned mirrors evenly (the old one clustered them on one phase).
+- **Large maps can be CPU-bound on Blueprint ticks.** On MirrorMaze (263 mirrors) the off-screen test cost more processor time than it saved: turning it off gave +52 FPS standing and +32 walking, so 0.6.0 removed it. Captures had become cheap (about 0.085 ms each). Keep the lean tick (`ChecksEveryNFrames` 4, the default).
 
-## 3b. Recommended schedule for mirror-heavy maps (kit 0.5.5)
+## 3b. Recommended schedule for mirror-heavy maps
 
-Since kit 0.8.0 these are the **defaults** of every mirror (plus `Resolution` 0.5, `StaggerMode` Distance and `DisableReflectionAO` on). Change them map-wide with `BP_MirrorKitSettings` (per-mirror settings) and `BP_MirrorKitBudget` (the budget rows below); README: *Settings for many mirrors at once*.
+Since 0.6.0 these are the **defaults** of every mirror (plus `Resolution` 0.5, `StaggerMode` Distance and `DisableReflectionAO` on). Change them map-wide with `BP_MirrorKitSettings` (per-mirror settings) and `BP_MirrorKitBudget` (the budget rows below); README: *Settings for many mirrors at once*.
 
 Use time, not frames, and let a budget trim the far mirrors:
 
@@ -66,36 +66,49 @@ Use time, not frames, and let a budget trim the far mirrors:
 | `CaptureBudget` | 2 | captures per frame across the map; stretches far, off-centre mirrors when the load is higher |
 | `BudgetFocusDistance` / `BudgetFocusAngle` | 800 cm / 15° (defaults) | mirrors near you or near the view centre keep their pace (without focus, budgets looked choppy in bouts) |
 | `MinUpdateRate` | 30 | the budget never pushes a mirror below 30 updates/s (at a 60 FPS cap that means at most every 2nd frame) |
-| `OffscreenUpdateEveryNFrames` | 1 | on large maps the off-screen test costs more processor time than it saves |
+| `FocusUpdateRate` | 144 | focused mirrors (near or central) update faster, against sideways jitter at high uncapped FPS (free below about 216 FPS, where 144/s is already every frame) |
 
-Measured on MirrorMaze (263 mirrors, MirrorMazeRenderTests sets 13-15): 327 FPS walking uncapped (every-2 without budget: ~291; no mirrors: ~379), 1% low ~207. At a 60 FPS cap, mirrors update 30-60 times a second at ~36 % GPU, and testers saw them as smooth. Keep `TargetUpdateRate` well below your usual FPS: with rounding, a mirror drops to every frame only below 1.5 × the rate.
+Measured on MirrorMaze (263 mirrors after merging): 327 FPS walking uncapped (every-2 without budget: ~291; no mirrors: ~379), 1% low ~207. At a 60 FPS cap, mirrors update 30-60 times a second at ~36 % GPU, and testers saw them as smooth. Keep `TargetUpdateRate` well below your usual FPS: with rounding, a mirror drops to every frame only below 1.5 × the rate.
+
+## 3c. Smoothness at high frame rates
+
+Rate-based schedules make a mirror update every `round(FPS / rate)` frames, so the faster the PC, the more frames each reflection is held. Below about 135 FPS the default 90 updates/s is already every frame; jitter is a high-FPS question.
+
+| Finding | Measured | Setting |
+| --- | --- | --- |
+| Sideways strafing next to a mirror looked jittery uncapped (~300 FPS) | walking: no focus 355, focus 144/s 315, focus every frame 281 FPS; 144 greatly reduced it, every frame removed it | `FocusUpdateRate` 144 by default; players/hosts raise it with `-MirrorFocusRate=1000` / `?MirrorFocusRate=1000` |
+| The interval flipped between N and N+1 with frame-time noise near rounding boundaries, giving uneven gaps | smoothed interval visibly steadier at ~0-3 % FPS uncapped, no cost at a 240 cap; an anchored cadence added no visible gain for ~2-5 % | `SmoothUpdateInterval` on (default), `AnchorUpdateCadence` optional |
+| Close first-person strafing still slightly choppy at 144/s above ~216 FPS | confirmed by `-MirrorFocusRate=1000` (not resolution, not tick order) | default kept at 144 by choice; Ultra preset = every frame |
+
+0.6.0 also made the per-mirror Blueprint work cheaper (interval stored once per tick; one hidden manager for FPS smoothing, budget and quality). On MirrorMaze, same map and settings, uncapped, these changes alone gave +7 % standing (360 -> 385 FPS), +3 % walking (320 -> 330) and better 1 % lows.
+
+Judge smoothness on the display you play on: on a 60 Hz screen, uncapped FPS mainly lowers input latency, and a 60 (or 120/180) cap gives the cleanest picture because every mirror then updates every frame.
 
 ## 4. Settings worth knowing
 
 | Setting | Effect measured | Visual cost | Recommendation |
 | --- | --- | --- | --- |
 | `Resolution` 0.5 → 0.35 | about +3% (8 FPS walking) after the steps above | softer reflections | 0.5 is a good default; drop only if GPU-bound with many mirrors |
-| `DisableReflectionAO` | about −1 ms standing in early tests (every-frame updates); overlaps with resolution | not noticeable in mirrors | tick it on mirror-heavy maps (0.5.0+) |
+| `DisableReflectionAO` | about −1 ms standing in early tests (every-frame updates); overlaps with resolution | not noticeable in mirrors | on by default |
 | `CaptureDistance` 15 m | −1.75 ms walking | distant mirrors visibly **freeze** | prefer staggering and merging; keep the default 25 m unless the layout hides distant mirrors |
-| `OffscreenUpdateEveryNFrames` 0 | +11 FPS walking, +21 standing in a corner-heavy maze | reflections of mirrors outside your view stop updating inside other mirrors | good for mirror-in-mirror heavy layouts; `4` gave little |
 | `MaxViewDistance` | small (+6-9 FPS at 25-15 m from a ~40 FPS baseline, older kit) | removes distant geometry from reflections | rarely worth it in closed layouts |
 | `Depth` above 1 (partners) | each level is another full render | infinite-tunnel effect | use only where the effect is the point |
 
-`CaptureDistance`, `DistanceStaggerStart` and `DistanceThrottleStart` measure to the nearest point of the mirror face (0.5.0+), so long mirrors stay live near their ends.
+`CaptureDistance` and `DistanceStaggerStart` measure to the nearest point of the mirror face, so long mirrors stay live near their ends.
 
 ## 5. Layout habits
 
 - Corners where two mirrors face each other keep both live even when one is only visible inside the other.
-- Mirrors behind the player, or outside the view, still count while they appear in other reflections. `OffscreenUpdateEveryNFrames` handles the out-of-view part.
+- Mirrors behind the player, or outside the view, still count while they appear in other reflections; mirrors drawn nowhere stop after `VisibilityTolerance`.
 - Mirrors inside the view but hidden behind walls can still capture when they appear in a reflection; the engine does not tell Blueprints about main-view occlusion. Breaking long sight lines between mirrors helps.
 - Decorative surfaces that do not need a live player reflection should use baked tiles (`BP_MirrorTile`) or `M_MirrorEnvironment` instead of live mirrors.
 
 ## How these numbers were measured
 
-- **Map:** the MirrorMaze test map (463 mirror pieces, 81 point lights), one PC, solo, frame-rate cap off.
-- **Machine:** GPU NVIDIA GeForce RTX 4060 (8 GB, driver 32.0.16.1074 = 610.74); CPU Intel Core i7-14700F (20 cores / 28 threads); 32 GB RAM; Windows 11 Home (build 26200). Game: 1920 × 1080 fullscreen, VSync off, `sg.*` quality 3 (Epic) except foliage and shading 1, resolution scale 100 %. Values read on 2026-10-17 from Windows and `GameUserSettings.ini`; earlier sets are assumed to use the same machine.
+- **Map:** the MirrorMaze test map (463 mirror pieces at first, 263 after merging coplanar pieces; 81 point lights), one PC, solo, frame-rate cap off.
+- **Machine:** GPU NVIDIA GeForce RTX 4060 (8 GB, driver 32.0.16.1074 = 610.74); CPU Intel Core i7-14700F (20 cores / 28 threads); 32 GB RAM; Windows 11 Home (build 26200). Game: 1920 × 1080 fullscreen, VSync off, `sg.*` quality 3 (Epic) except foliage and shading 1, resolution scale 100 %. Values read on 2026-10-17 from Windows and `GameUserSettings.ini`; earlier measurements are assumed to use the same machine.
 - **Recording:** NVIDIA App performance logs. Each case is recorded as 30 s standing at spawn plus one fixed walking route, repeated in alternating order (2-3 rounds).
-- **Telemetry:** captures per frame come from an in-game telemetry actor reading each mirror's `CaptureCount` (0.5.0+). See `mods/MirrorMazeRenderTests` in the development workspace. Absolute FPS differs per PC; use the relative changes.
+- **Telemetry:** captures per frame come from each mirror's `CaptureCount`, read by test tools. Absolute FPS differs per PC; use the relative changes.
 
 | Step (cumulative, walking) | FPS |
 | --- | --- |

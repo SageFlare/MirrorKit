@@ -2,7 +2,7 @@
 
 AgGraphTools is a custom, editor-only Unreal Engine 4.25 plugin used to generate MirrorKit's
 Blueprints from Python. UE 4.25 exposes asset and material editing to Python, but it does not expose
-the Blueprint graph-authoring operations needed by `MirrorLab/scripts/create_map.py`.
+the Blueprint graph-authoring operations MirrorKit's generator scripts need.
 
 It adds `unreal.AgGraphLibrary`, whose helpers can:
 
@@ -35,25 +35,7 @@ dependencies are gone. It leaves executed/impure nodes and connected calculation
 
 ## Install for regeneration
 
-Make the plugin visible at `ArgonSDK/Plugins/AgGraphTools`. In this workspace that path is a junction
-to `mods/MirrorKit/Tools/AgGraphTools`:
-
-```powershell
-New-Item -ItemType Junction `
-  -Path .\ArgonSDK\Plugins\AgGraphTools `
-  -Target .\mods\MirrorKit\Tools\AgGraphTools
-```
-
-Build the ArgonSDK editor after installing or changing the C++ plugin. Then regenerate MirrorKit and
-MirrorLab with:
-
-```powershell
-.\mods\MirrorLab\build.ps1 -Regenerate
-```
-
-`create_map.py` calls `unreal.AgGraphLibrary` directly. The saved `.uasset` and `.umap` files it
-produces can subsequently be validated, cooked and packaged without executing those graph-authoring
-calls.
+Copy (or link) this folder to `ArgonSDK/Plugins/AgGraphTools` and build the ArgonSDK editor after installing or changing the C++ plugin. Editor Python scripts can then call `unreal.AgGraphLibrary`. MirrorKit's own generator scripts are part of its development workspace, not of this repository; the saved `.uasset` files they produce are validated, cooked and packaged without executing any graph-authoring calls.
 
 Only `AgGraphTools.uplugin` and `Source/` belong in source control. `Binaries/` and `Intermediate/`
 are machine-generated build output.
