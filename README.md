@@ -42,7 +42,15 @@ Presets that come with MirrorKit:
 | `High` | The settings tuned for mirror-heavy maps |
 | `Ultra` | Strong PCs: full resolution, the nearest mirrors update every frame |
 
-If you choose nothing, mirrors use the map's settings, or the server's if the host set any. You can also change single values instead of a whole preset (for example `-MirrorFocusRate=1000`), and hosts can set an optional cap. **[Every quality option](docs/QUALITY.md)**.
+**Jitter at high uncapped FPS:** if reflections look slightly jittery when you move sideways along a mirrored wall in first person (usually above about 200 FPS), add
+
+```
+-MirrorFocusRate=1000
+```
+
+The mirrors nearest you and in the middle of your view then update every frame, which removes the jitter. It costs some frame rate: on a mirror-heavy map, walking uncapped dropped from about 315 to 281 FPS (around 10 %) in my tests. With a frame cap of 144 FPS or lower, the nearest mirrors already update every frame, so you do not need it.
+
+If you choose nothing, mirrors use the map's settings, or the server's if the host set any. You can also change single values instead of a whole preset, and hosts can set an optional cap. **[Every quality option](docs/QUALITY.md)**.
 
 ## Making a map with mirrors
 
