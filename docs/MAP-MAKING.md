@@ -130,7 +130,7 @@ All settings are on every placed mirror. The performance defaults are the Mirror
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `Resolution` | 0.5 | Overall scale. With the default profile, targets are 1280 × 720 at level 1 and 640 × 360 deeper. 0.5 is a good value for mirror-heavy maps |
+| `Resolution` | 0.5 | Size of each reflection's render target: 1 = 1280 × 720 at level 1 (a fixed size, not a share of the screen); deeper levels are scaled again by the profile (`FixedDeep`: half). The default 0.5 gives 640 × 360 at level 1 and 320 × 180 deeper, a good value for mirror-heavy maps. Maximum 2.0 (2560 × 1440); higher values, from any source, act as 2.0 |
 | `ResolutionProfile` | FixedDeep | Deeper-level rule: `FixedDeep`, `Linear` or `Multiply` |
 | `DeepResolutionScale` | 0.5 | `FixedDeep`: scale for every level after the first |
 | `ResolutionDropPerLevel` | 0.15 | `Linear`: amount subtracted per level |
@@ -247,6 +247,6 @@ Open `BP_CaptureMirror`. EventGraph resolves the settings, finds the manager and
 | Projection | `ReflectViewAcrossPlane`, `ProjectMirrorRay`, `FitMirrorInterval`, `ComputeVisibleMirrorBounds` (pure maths) |
 | Visibility | `RefreshCaptureHiddenActors`, `HideActorFromActiveCaptures`, `HidePartnerPanelsForCapture` |
 
-`BP_MirrorKitManager`: `ApplyServerOptions` (parses the quality layers), `ResolveBudget` (reads `BP_MirrorKitBudget`), and a Tick that smooths the FPS and steps the budget multiplier.
+`BP_MirrorKitManager`: `FilterServerOptions` (resolves presets on the host and serializes only numeric settings and flags), `ApplyServerOptions` (parses the quality layers), `ResolveBudget` (reads `BP_MirrorKitBudget`), and a Tick that smooths the FPS and steps the budget multiplier.
 
 **Capture count.** Each mirror counts its captures in `CaptureCount`. The capture budget uses it: each tick a budgeted mirror reports its captures since the last report to `BP_MirrorKitManager`.

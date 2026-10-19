@@ -34,7 +34,11 @@ Example: with `-MirrorQuality=Low` in your launch options and `?MirrorQuality=Hi
 | `Low` | 0.35 | 45 | 45 | 15 m | 2 | off | on | off |
 | `Off` | no live reflections; mirrors show plain dark glass | | | | | | | |
 
-Use a preset by name (`-MirrorQuality=Low`) or by the path of any `BP_MirrorQuality` data asset in a PAK you have installed (`-MirrorQuality=/Game/Mods/<Mod>/<Asset>`). A custom preset needs its PAK on every machine that uses it. An unknown name changes nothing.
+Server map options `?MirrorQuality=` and `?MirrorMaxQuality=` accept built-in names or the path of a custom `BP_MirrorQuality` asset installed on the host. The host loads and checks the preset, applies inline settings, and sends only the resulting numeric values and flags to clients. Clients do not need the custom preset PAK. Missing or wrong-type presets contribute no values; inline settings still apply.
+
+For example, install your preset PAK on the server and use `?MirrorQuality=/Game/Mods/MyPresets/MQ_Server`. Use `?MirrorMaxQuality=/Game/Mods/MyPresets/MQ_ServerCap` to apply a custom preset as limits. Use MirrorKit 0.7.0 or later on both host and clients; older clients do not understand every setting the host sends.
+
+For your own game, use a preset name (`-MirrorQuality=Low`) or explicitly choose a `BP_MirrorQuality` asset from a PAK you installed (`-MirrorQuality=/Game/Mods/<Mod>/<Asset>`). This local launch option retains custom-asset loading; it is your choice and is not supplied by the server. The custom PAK is needed only on machines choosing that local preset. An unknown local preset changes nothing.
 
 ## Single values
 
@@ -42,7 +46,7 @@ The same keys work as launch options (`-Key=`) and as server values (`?Key=`). T
 
 | Key | Value | Changes |
 | --- | --- | --- |
-| `MirrorResolution` | e.g. `0.5`, `1` | Reflection resolution (1 = 1280 × 720) |
+| `MirrorResolution` | e.g. `0.5`, `1`; at most `2` | Reflection resolution: a fixed size per mirror, not a share of your screen (1 = 1280 × 720, 2 = 2560 × 1440). Values above 2 act as 2 |
 | `MirrorRate` | updates per second, e.g. `90`; `0` = every N frames | How often mirrors update |
 | `MirrorFocusRate` | updates per second; `1000` = every frame | How often the nearest and most central mirrors update |
 | `MirrorDistance` | cm, e.g. `2500` | Mirrors farther than this stop updating |
@@ -56,9 +60,11 @@ The same keys work as launch options (`-Key=`) and as server values (`?Key=`). T
 
 | Key | Limits |
 | --- | --- |
-| `?MirrorMaxQuality=<preset or asset path>` | Every value of that preset becomes a limit |
+| `?MirrorMaxQuality=<preset name or host asset path>` | Every value of that preset becomes a limit; only the host needs a custom preset PAK |
 | `?MirrorMaxResolution=0.5` | Resolution |
 | `?MirrorMaxRate=90` | Both update rates |
+| `?MirrorMaxUpdateRate=90` | Normal update rate only |
+| `?MirrorMaxFocusRate=144` | Focused update rate only |
 | `?MirrorMaxDistance=2000` | Capture distance (cm) |
 | `?MirrorMaxCaptures=3` | Captures per frame |
 | `?MirrorNoAO` | Turns reflection AO off |
@@ -68,5 +74,7 @@ When several limits apply, the strictest wins.
 
 ## Notes
 
-- Mirrors render only on players' machines. A dedicated server does no mirror rendering, so hosting costs no GPU. The server shares its map options with clients automatically.
+- Mirrors render only on players' machines. A dedicated server does no mirror rendering, so hosting costs no GPU. The server shares only the recognized Mirror quality settings listed here with clients; unrelated map options are discarded before replication.
 - Quality is applied when the match starts, and again on your machine if the server's options arrive later.
+- A server's values are applied as the server sets them. A server can choose heavy settings, such as a long capture distance or a high update rate, so only join servers you trust. Your own `-MirrorQuality=` or single values replace the server's values; only a server cap can lower them.
+- From 0.7.0, Off frees the video memory of the reflections. Mirrors that start Off never reserve it. When Off arrives after the mirrors started (a server's Off reaches you a moment after you join, even if you join mid-match), they switch to dark glass and release it. Mirror stand-ins (the small player copies used in reflections) are not created when mirrors start Off, and stay if Off arrives later; they are cheap. If mirrors are switched back on, the reflections are created again.
