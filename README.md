@@ -4,7 +4,7 @@
 
 Live mirrors for Chivalry 2 Unchained maps: reflections that show you and other players, cheap shiny surfaces and breakable mirror tiles. MirrorKit is a **library**: it adds no map by itself, and maps that use it need it installed.
 
-Version 0.7.0. Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The [MirrorLab](https://github.com/SageFlare/MirrorLab) map shows every mirror type; [MirrorMaze](https://github.com/SageFlare/MirrorMaze) is a full mirror maze built with it.
+Version 0.8.0. Built with [ArgonSDK](https://github.com/Chiv2-Community/ArgonSDK) (Unreal Engine 4.25). The [MirrorLab](https://github.com/SageFlare/MirrorLab) map shows every mirror type; [MirrorMaze](https://github.com/SageFlare/MirrorMaze) is a full mirror maze built with it.
 
 ## Installation
 
@@ -71,7 +71,7 @@ Every effect is per viewer: a ghost or headless mirror changes only *your own* r
 ## Known limitations
 
 - Reflections of mirrors inside other independent mirrors are plausible but not geometrically exact.
-- Sheathed weapons do not appear in first-person reflections; weapons in hand do.
+- Sheathed weapons in first-person reflections hang on the third-person body, so they can sit slightly off the reflected body (since 0.8.0; before, they did not appear).
 - Live tiles show one reflection level; still tiles never show players.
 
 [Version history](docs/CHANGELOG.md).
