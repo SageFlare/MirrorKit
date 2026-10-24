@@ -1,0 +1,90 @@
+site_name: MirrorKit
+site_description: Reusable live reflections, mirror variants, shiny surfaces and breakable mirror tiles for Chivalry 2 Unchained maps.
+site_url: https://sageflare.github.io/MirrorKit/
+repo_url: https://github.com/SageFlare/MirrorKit
+edit_uri: edit/main/docs/
+
+
+theme:
+    name: 'material'
+    font:
+      text: Volkhov
+    logo: assets/images/MirrorPak.png
+    favicon: assets/images/MirrorPak.png
+    features:
+      - navigation.instant
+      - navigation.tracking
+      - navigation.top
+      - toc.follow
+      - search.suggest
+      - search.highlight
+      - content.code.copy
+      - content.action.edit
+    palette:
+      # Dark mode (default)
+      - scheme: slate
+        primary: amber
+        accent: blue
+        toggle:
+          icon: material/brightness-4
+          name: Switch to light mode
+
+      # Light mode
+      - scheme: default
+        primary: amber
+        accent: indigo
+        toggle:
+          icon: material/brightness-7
+          name: Switch to dark mode
+
+# Extensions
+markdown_extensions:
+  - footnotes
+  - attr_list
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+  # - pymdownx.superfences
+  # - pymdownx.magiclink
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - def_list
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - roamlinks
+
+extra_css:
+  - javascripts/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - 'Home': index.md
+  - 'Quality options': QUALITY.md
+  - 'Making a map': MAP-MAKING.md
+  - 'Map performance': MAP-OPTIMIZATION.md
+  - 'Version history': CHANGELOG.md

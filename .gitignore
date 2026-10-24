@@ -20,3 +20,8 @@ __pycache__/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Docs site (ModTemplate)
+.obsidian/*
+.venv/
+site/

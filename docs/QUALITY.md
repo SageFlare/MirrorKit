@@ -1,6 +1,6 @@
 # Mirror quality options
 
-Players and server hosts can change how MirrorKit mirrors look and how much they cost, without touching the map. This page lists every option. For a quick start, see [Mirror quality in the README](../README.md#mirror-quality).
+Players and server hosts can change how MirrorKit mirrors look and how much they cost, without touching the map. This page lists every option. For a quick start, see [Mirror quality on the home page](index.md#mirror-quality).
 
 ## Where the options go
 
@@ -39,7 +39,7 @@ Example: with `-MirrorQuality=Low` in your launch options and `?MirrorQuality=Hi
 
 | Partners on (Mirror Maze, `?MirrorPartners=1`) | Partners off (Mirror Maze default) |
 | --- | --- |
-| ![Partners on](../images/partners-on.png) | ![Partners off](../images/partners-off.png) |
+| ![Partners on](assets/images/partners-on.png) | ![Partners off](assets/images/partners-off.png) |
 | Facing mirrors show each other correctly: the reflection inside the reflection continues the corridor (the tunnel on the right). | Each mirror reflects on its own; reflections of other mirrors are approximate, so the geometry inside them looks wrong. |
 
 Server map options `?MirrorQuality=` and `?MirrorMaxQuality=` accept built-in names or the path of a custom `BP_MirrorQuality` asset installed on the host. The host loads and checks the preset, applies inline settings, and sends only the resulting numeric values and flags to clients. Clients do not need the custom preset PAK. Missing or wrong-type presets contribute no values; inline settings still apply.
