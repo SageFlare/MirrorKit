@@ -9,10 +9,10 @@ All live mirrors are `BP_CaptureMirror` or one of its presets. Presets differ on
 | Asset | What you see | Cost |
 | --- | --- | --- |
 | `BP_CaptureMirror` | True reflection: your full body (moving legs, head, weapon in hand), other players and the room. With a facing `Partner`, an infinite-looking tunnel | High |
-| `BP_Mirror_Funhouse` | Magnified, gappy carnival look | High |
-| `BP_Mirror_Headless` | Your reflection has no head (others look normal) | High |
-| `BP_Mirror_StretchHead` | Your head stretches as you look up and down | High |
-| `BP_Mirror_Ghost` | Your body is invisible; your weapons float | High |
+| `BP_Mirror_Funhouse` | Magnified, gappy carnival look (`Style` Funhouse) | High |
+| `BP_Mirror_Headless` | Your reflection has no head; others look normal (`Body` Headless) | High |
+| `BP_Mirror_StretchHead` | Your head stretches as you look up and down (`Body` Stretch head; its own settings at `Resolution` 1, since the effect needs detail) | High |
+| `BP_Mirror_Ghost` | Your body is invisible; your weapons float (`Body` Ghost) | High |
 | `BP_MirrorTileLive` + two `Tiled` mirrors | A wall of breakable tiles showing a live reflection on both faces; break one and walk through | Medium (one reflection level) |
 | `BP_MirrorTile` / `BP_MirrorTile_NoSnow` | Breakable tiles with a baked (still) reflection; the snow variant plays wind when broken | Very low |
 | `M_MirrorEnvironment` | Material: shiny metal with a baked image of the room, plus screen-space reflections at shallow angles | Very low |
@@ -56,7 +56,7 @@ Giving a mirror a `Partner` later means re-checking these gaps: a partnered mirr
 - **Use your own meshes and materials for structure.** Place only kit actors and kit mirror materials. A player without MirrorKit then still gets a playable map instead of holes in it.
 - **Your PAK must not contain MirrorKit's files.** Cooking your map also writes cooked kit files to `Saved/Cooked/.../Content/Mods/MirrorKit/`; package only your own mod folder.
 - **Keep the kit's enums out of native conversion.** If your project uses Blueprint nativization:
-  - Add `/Game/Mods/MirrorKit/Blueprints/E_MirrorStaggerMode` and `/Game/Mods/MirrorKit/Blueprints/E_MirrorSettingsSource` as `+ExcludedAssets` under `[BlueprintNativizationSettings]` in `Config/DefaultEditor.ini`.
+  - Add `/Game/Mods/MirrorKit/Blueprints/E_MirrorStaggerMode`, `/Game/Mods/MirrorKit/Blueprints/E_MirrorSettingsSource`, `/Game/Mods/MirrorKit/Blueprints/E_MirrorStyle` and `/Game/Mods/MirrorKit/Blueprints/E_MirrorBody` as `+ExcludedAssets` under `[BlueprintNativizationSettings]` in `Config/DefaultEditor.ini`.
   - Otherwise UE 4.25 can leave them out of the PAK.
   - Recook referring maps after changing this.
 - Add MirrorKit as a dependency in your `mod.json`.
@@ -110,13 +110,9 @@ All settings are on every placed mirror. The performance defaults are the Mirror
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `HeadSource` | 3 | Your body in the reflection: 3 full body; 1 head and torso only (stiff head); 2 stretching head; 0 headless |
-| `HideBody` | off | Ghost: hide your character from this mirror |
-| `PortalMode` | on | Off = the older screen-mapped (funhouse) look |
-| `MatchViewFov` | on | Off = funhouse magnification |
-| `FitVisible` | on | Render only the part of the mirror inside your view (sharper close up) |
-| `ScreenLevel1` | off | Sharper large **floor** mirrors when looking straight down; use with `ClipBehind` off and nothing below the mirror |
-| `ClipBehind` | on | Hide geometry behind the mirror (screen-mapped look) |
+| `Style` | True | **True:** a true reflection. **Floor:** for large floor mirrors seen from above, sharper looking straight down (keep nothing below the mirror). **Funhouse:** magnified carnival look with gaps at the edges. Floor and Funhouse render their front reflection at full screen size (the most expensive kind) |
+| `Body` | Full body | Your body in this mirror: **Full body**, **Head only** (head and torso, stiff head), **Stretch head** (head stretches as you look up and down), **Headless**, or **Ghost** (invisible body, weapons float). Other players always look normal |
+| `FitVisible` | on | Render only the part of the mirror inside your view (sharper close up; `Style` True and Floor) |
 | `Tiled` | off | The mirror is invisible and walk-through; tiles show its reflection |
 
 **Partners**
@@ -224,7 +220,7 @@ Each player's game renders mirrors from their own camera, so everyone sees a cor
 
 | Path (`/Game/Mods/MirrorKit/`) | Assets |
 | --- | --- |
-| `Blueprints/` | `BP_CaptureMirror`; map actors `BP_MirrorKitSettings`, `BP_MirrorKitBudget`; runtime `BP_MirrorKitManager` (spawned automatically by the first mirror); presets `BP_Mirror_Funhouse`, `BP_Mirror_Headless`, `BP_Mirror_StretchHead`, `BP_Mirror_Ghost`; tiles `BP_MirrorTileLive`, `BP_MirrorTile`, `BP_MirrorTile_NoSnow`; stand-ins `BP_MirrorDoubleFull`, `BP_MirrorDouble`, `BP_MirrorDoubleStretch` (spawned automatically); profile data asset class `BP_MirrorProfile`; quality data asset class `BP_MirrorQuality`; `BP_MirrorKitNet` (spawned on a server whose map options include mirror options); enums `E_MirrorStaggerMode`, `E_MirrorSettingsSource` |
+| `Blueprints/` | `BP_CaptureMirror`; map actors `BP_MirrorKitSettings`, `BP_MirrorKitBudget`; runtime `BP_MirrorKitManager` (spawned automatically by the first mirror); presets `BP_Mirror_Funhouse`, `BP_Mirror_Headless`, `BP_Mirror_StretchHead`, `BP_Mirror_Ghost`; tiles `BP_MirrorTileLive`, `BP_MirrorTile`, `BP_MirrorTile_NoSnow`; stand-ins `BP_MirrorDoubleFull`, `BP_MirrorDouble`, `BP_MirrorDoubleStretch` (spawned automatically); profile data asset class `BP_MirrorProfile`; quality data asset class `BP_MirrorQuality`; `BP_MirrorKitNet` (spawned on a server whose map options include mirror options); enums `E_MirrorStaggerMode`, `E_MirrorSettingsSource`, `E_MirrorStyle`, `E_MirrorBody` |
 | `Quality/` | MirrorQuality presets `MQ_Off`, `MQ_Low`, `MQ_Medium`, `MQ_High`, `MQ_Ultra`, `MQ_Omega` |
 | `Profiles/` | MirrorProfiles `MP_MirrorMaze` (MirrorMaze schedule), `MP_HighDetail` |
 | `Materials/` | `M_MirrorEnvironment`, `M_MirrorPolished` (screen-space only), `M_MirrorDarkCenter`, `M_MirrorCracked`; internal: `M_CaptureMirror`, `M_Matte`, `M_MirrorOff` (mirrors switched off) |
