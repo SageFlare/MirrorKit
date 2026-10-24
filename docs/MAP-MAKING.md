@@ -194,7 +194,7 @@ A mirror's size, settings, position and facing are read when play starts (the ca
 - `Partners` (on by default) switches the tunnel; Each mirror of a working pair renders one extra inner reflection, at half its update rate and sized to the screen. The built-in quality presets other than `Omega` switch partners off, so on a server or for a player who picks `Low` to `Ultra` the pair renders like independent mirrors. Leave it on in your map settings if the tunnel is the point of the map, or off if the map should be cheap by default and the tunnel opt-in (`Omega`, `?MirrorPartners=1`).
 - Partners do not have to be parallel: each reflection is computed across each mirror's own plane.
 - A mirror on the back of a wall is an ordinary mirror, so it takes its own `Partner`.
-- **One partner per mirror.** Chains (A → B → C → A) get exact deeper reflections only into each mirror's own partner.
+- **Partners are mutual pairs.** Each mirror of a pair names the other as its `Partner`. Chains or one-sided links (A → B → C → A) are not supported: those mirrors render as independent mirrors, and the editor shows the red box.
 
 ## Tiles and materials
 
