@@ -1,18 +1,24 @@
 {
-  "repo_url": "https://github.com/SageFlare/MirrorKit",
+  "$schema": "https://raw.githubusercontent.com/Chiv2-Community/zero-infra-mod-registry/v1/schemas/mod.schema.json",
   "name": "MirrorKit",
   "description": "Reusable live reflections, mirror variants, shiny surfaces and breakable mirror tiles for Chivalry 2 Unchained maps.",
-  "image_url": "https://raw.githubusercontent.com/SageFlare/MirrorKit/main/images/MirrorPak.png",
-  "mod_type": "Shared",
   "authors": [
     "SageFlare"
   ],
-  "dependencies": [],
+  "repo_url": "https://github.com/SageFlare/MirrorKit",
+  "icon_url": null,
+  "image_urls": [
+    "https://raw.githubusercontent.com/SageFlare/MirrorKit/main/images/MirrorPak.png"
+  ],
+  "mod_dependencies": [],
+  "plugin_dependencies": [],
+  "image_url": "https://raw.githubusercontent.com/SageFlare/MirrorKit/main/images/MirrorPak.png",
+  "mod_type": "Shared",
   "tags": [
     "Assets"
   ],
   "maps": [],
   "options": {
-    "actor_mod": true
+    "actor_mod": false
   }
 }

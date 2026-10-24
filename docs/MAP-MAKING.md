@@ -37,26 +37,26 @@ Every effect is per viewer. A ghost or headless mirror changes only *your own* r
    - Turn wall mirrors with **Rotation Z (Yaw)**.
 2. Size it with the actor **scale**: Y × 100 = width in cm, Z × 100 = height in cm, and keep X = 1. For example, (1, 12, 6) is a 12 × 6 m mirror. For a floor mirror, rotate it to face up.
 3. Leave `Partner` empty for a normal mirror (see [Partners](#partners-and-tunnels) for the tunnel effect).
-4. **Leave `Depth` + 3 cm clear behind the face** (4 cm at the default `Depth` 1). The reflection layers live there; geometry inside that space flickers. Selecting a mirror shows an orange `ClearanceGuide` box over this space; it has no collision and is hidden in game.
+4. **Leave 4 cm clear behind the face** (5 cm when the mirror has a `Partner`). The reflection layers live there; geometry inside that space flickers. Selecting a mirror shows an orange `ClearanceGuide` box over this space; it has no collision and is hidden in game.
 5. Mirrors are solid: the backing plate blocks players and weapons, except in `Tiled` mirrors, where the tiles collide. The back of a mirror shows plain metal. For a mirror wall that reflects on both sides, place a second mirror on the back facing the other way (see spacing below).
 6. Nothing else to place. The stand-ins that draw your body in reflections (`BP_MirrorDouble*`) spawn automatically.
 
-**Spacing rules** (MirrorKit cannot move your geometry, so these are up to you; `Depth` is clamped to 1-10):
+**Spacing rules** (MirrorKit cannot move your geometry, so these are up to you):
 
-| Behind a mirror face | Keep at least | Example at `Depth` 1 / 3 |
-| --- | --- | --- |
-| Walls, floors, any map geometry | `Depth` + 3 cm (the orange box) | 4 / 6 cm |
-| Another mirror back to back (no wall between) | `Depth` + 4 cm between the two faces, using the larger `Depth` | 5 / 7 cm |
-| A wall between two back-to-back mirrors | `Depth` + 3 cm on each side of the wall | 36 cm wall: faces 44 / 48 cm apart |
+| Behind a mirror face | Keep at least (without / with a `Partner`) |
+| --- | --- |
+| Walls, floors, any map geometry | 4 / 5 cm (the orange box) |
+| Another mirror back to back (no wall between) | 5 / 6 cm between the two faces (the larger if only one has a partner) |
+| A wall between two back-to-back mirrors | 4 / 5 cm on each side of the wall (36 cm wall: faces 44 / 46 cm apart) |
 
-Raising `Depth` later means re-checking these gaps: a deeper stack needs more room behind the face.
+Giving a mirror a `Partner` later means re-checking these gaps: a partnered mirror needs 1 cm more behind the face.
 
 ### Build your map so it works with the shared PAK
 
 - **Use your own meshes and materials for structure.** Place only kit actors and kit mirror materials. A player without MirrorKit then still gets a playable map instead of holes in it.
 - **Your PAK must not contain MirrorKit's files.** Cooking your map also writes cooked kit files to `Saved/Cooked/.../Content/Mods/MirrorKit/`; package only your own mod folder.
 - **Keep the kit's enums out of native conversion.** If your project uses Blueprint nativization:
-  - Add `/Game/Mods/MirrorKit/Blueprints/E_MirrorResolutionProfile`, `/Game/Mods/MirrorKit/Blueprints/E_MirrorStaggerMode` and `/Game/Mods/MirrorKit/Blueprints/E_MirrorSettingsSource` as `+ExcludedAssets` under `[BlueprintNativizationSettings]` in `Config/DefaultEditor.ini`.
+  - Add `/Game/Mods/MirrorKit/Blueprints/E_MirrorStaggerMode` and `/Game/Mods/MirrorKit/Blueprints/E_MirrorSettingsSource` as `+ExcludedAssets` under `[BlueprintNativizationSettings]` in `Config/DefaultEditor.ini`.
   - Otherwise UE 4.25 can leave them out of the PAK.
   - Recook referring maps after changing this.
 - Add MirrorKit as a dependency in your `mod.json`.
@@ -85,7 +85,7 @@ Each mirror picks where its per-mirror settings come from with **`SettingsSource
 - **One-offs:** set `SettingsSource` to `Own` and edit that mirror.
 - **Budget:** edit `BP_MirrorKitBudget`; mirrors, profiles and settings actors never carry it. At runtime a hidden `BP_MirrorKitManager` (spawned automatically, nothing to place) applies it. Without a budget actor the budget is **off**. Placing one turns it on with its defaults (budget 2, max ×4, min 30 updates/s, focus 800 cm / 15°), visible and editable on the actor. To keep one mirror out of it (e.g. a showcase mirror), tick its `ExcludeFromBudget`.
 
-Per-mirror performance settings: `Resolution`, `UpdateEveryNFrames`, `TargetUpdateRate`, `FocusUpdateRate`, `StaggerMode`, `DistanceStaggerStart`, `CaptureDistance`, `MaxViewDistance`, `VisibilityTolerance`, `ChecksEveryNFrames`, `DisableReflectionAO`, `SmoothUpdateInterval`, `AnchorUpdateCadence`. Look, body, depth, partner and tile settings stay on each mirror. Settings are resolved when the match starts; player and server quality choices are applied on top (again if the server options arrive later).
+Per-mirror performance settings: `Resolution`, `UpdateEveryNFrames`, `TargetUpdateRate`, `FocusUpdateRate`, `StaggerMode`, `DistanceStaggerStart`, `CaptureDistance`, `MaxViewDistance`, `VisibilityTolerance`, `ChecksEveryNFrames`, `DisableReflectionAO`, `SmoothUpdateInterval`, `AnchorUpdateCadence`, `FocusExemptFromBudget`, plus the look settings `InfiniteTail` and `Partners`. Body, `Partner` and tile settings stay on each mirror; a MapDefault mirror takes all of the above from `BP_MirrorKitSettings`, so set `Partners` there (or use a profile) rather than on single mirrors. Settings are resolved when the match starts; player and server quality choices are applied on top (again if the server options arrive later).
 
 **For a single sharp, every-frame mirror** (the defaults before 0.6.0), set `SettingsSource` `Own`, `Resolution` 1, `TargetUpdateRate` 0, `UpdateEveryNFrames` 1, `StaggerMode` None, `DisableReflectionAO` off, and `ExcludeFromBudget` on.
 
@@ -119,23 +119,18 @@ All settings are on every placed mirror. The performance defaults are the Mirror
 | `ClipBehind` | on | Hide geometry behind the mirror (screen-mapped look) |
 | `Tiled` | off | The mirror is invisible and walk-through; tiles show its reflection |
 
-**Partners and depth**
+**Partners**
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `Partner` | none | Facing mirror for the tunnel effect; empty = independent mirror |
-| `Depth` | 1 | Reflection levels with a partner, 1-10. Each level is another full render; above 3 is not recommended. Needs `Depth` + 3 cm clear behind the face ([spacing rules](#place-a-live-mirror)) |
+| `Partner` | none | Facing mirror for the tunnel effect; empty = independent mirror. Needs 5 cm clear behind the face ([spacing rules](#place-a-live-mirror)) |
+| `Partners` | on | A mirror with a `Partner` renders the geometric tunnel: two levels, its own reflection and the partner's reflection inside it (each mirror of a working pair renders one extra inner reflection, at half its update rate and sized to the screen). No effect without a `Partner`. Off = the pair renders like independent mirrors. Map settings, profile or mirror; servers and players can switch it ([quality options](QUALITY.md)). Both mirrors of a pair must point at each other and get `Partners` the same way (same `SettingsSource`; same `Profile`, or the same value when `Own`). MapDefault mirrors on a map without `BP_MirrorKitSettings` use their own values, so they also need the same value. The red box updates when a mirror is edited (not when a settings actor is added or removed, or a sublevel loads later), so treat it as a hint and re-select the pair after such changes. Otherwise a red box shows over the mirror in the editor, a warning is logged, and in play the pair renders as two independent mirrors |
 
 **Resolution**
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `Resolution` | 0.5 | Size of each reflection's render target: 1 = 1280 × 720 at level 1 (a fixed size, not a share of the screen); deeper levels are scaled again by the profile (`FixedDeep`: half). The default 0.5 gives 640 × 360 at level 1 and 320 × 180 deeper, a good value for mirror-heavy maps. Maximum 2.0 (2560 × 1440); higher values, from any source, act as 2.0 |
-| `ResolutionProfile` | FixedDeep | Deeper-level rule: `FixedDeep`, `Linear` or `Multiply` |
-| `DeepResolutionScale` | 0.5 | `FixedDeep`: scale for every level after the first |
-| `ResolutionDropPerLevel` | 0.15 | `Linear`: amount subtracted per level |
-| `PerLevelResolutionMultiplier` | 0.5 | `Multiply`: factor applied per level |
-| `MinimumDepthResolutionScale` | 0.125 | Lowest scale for deeper levels in any profile |
+| `Resolution` | 0.5 | The largest render target a reflection may use: 1 = 1280 × 720, the default 0.5 = 640 × 360. Each reflection is sized to how much of your screen it covers (about one target pixel per screen pixel), never above this and never above the size the game renders (screen size x the in-game resolution scale), so small or distant mirrors cost less and large partner walls get their inner reflection at up to the full size. Sizes step by about ×1.4, grow at once and shrink after a second. Maximum 2.0 (2560 × 1440); higher values, from any source, act as 2.0 |
 
 **Performance**
 
@@ -153,6 +148,8 @@ All settings are on every placed mirror. The performance defaults are the Mirror
 | `ChecksEveryNFrames` | 4 | Run the expensive per-mirror checks (distance, focus) only on the mirror's due frames and otherwise every N frames; 1 = every frame |
 | `SmoothUpdateInterval` | on | Base the update interval on the FPS averaged over ~0.5 s and keep it until the FPS clearly moves, so it does not flip with frame-time noise. Removes most jitter at fluctuating or uncapped FPS (measured: about 0-3 % FPS uncapped, none at a 240 cap) |
 | `AnchorUpdateCadence` | off | Optional: count each interval from the mirror's last update, so a changed interval never produces one short or long gap (off = fixed slots `(FrameCounter + phase) % N`). No visible gain over smoothing alone in our tests and about 2-5 % FPS uncapped, so it is off by default; worth trying on PCs where smoothing alone still judders |
+| `InfiniteTail` | off | Partnered mirrors: past the second (last exact) level, show the partner's own current reflection instead of dark glass, so the tunnel keeps going (approximate, no extra renders) |
+| `FocusExemptFromBudget` | on | Mirrors near you or near the centre of your view (the budget's focus distance and angle) keep their pace while the capture budget slows the others. Off: the budget slows them too, which smooths the worst frames when many mirrors are close at once, at the cost of nearby reflections updating less often under load. Servers and players can switch it (`MirrorFocusExempt`) |
 | `ExcludeFromBudget` | off | Keep this mirror out of the map-wide budget: never counted and never slowed down by it |
 
 **Budget** (map-wide, on `BP_MirrorKitBudget`; off without one; defaults below are the actor's)
@@ -192,7 +189,9 @@ A mirror's size, settings, position and facing are read when play starts (the ca
 
 ## Partners and tunnels
 
-- Set two facing mirrors as each other's `Partner` and raise `Depth` (usually 3) for an infinite-looking tunnel. Set relationships before play starts.
+- Set two facing mirrors as each other's `Partner` for a tunnel: each shows its own reflection and the partner's reflection inside it (two exact levels; more looked no different in our tests). Set relationships before play starts.
+- With `InfiniteTail` on, the tunnel continues past the second level with approximate reflections instead of ending dark.
+- `Partners` (on by default) switches the tunnel; Each mirror of a working pair renders one extra inner reflection, at half its update rate and sized to the screen. The built-in quality presets other than `Omega` switch partners off, so on a server or for a player who picks `Low` to `Ultra` the pair renders like independent mirrors. Leave it on in your map settings if the tunnel is the point of the map, or off if the map should be cheap by default and the tunnel opt-in (`Omega`, `?MirrorPartners=1`).
 - Partners do not have to be parallel: each reflection is computed across each mirror's own plane.
 - A mirror on the back of a wall is an ordinary mirror, so it takes its own `Partner`.
 - **One partner per mirror.** Chains (A → B → C → A) get exact deeper reflections only into each mirror's own partner.
@@ -201,7 +200,7 @@ A mirror's size, settings, position and facing are read when play starts (the ca
 
 **Breakable live tiles**
 
-1. Place a `BP_CaptureMirror` covering the wall's front, and a second one back to back covering its back (facing the other way, spaced as in the [spacing rules](#place-a-live-mirror)). Turn on `Tiled` on both and keep `Depth` 1.
+1. Place a `BP_CaptureMirror` covering the wall's front, and a second one back to back covering its back (facing the other way, spaced as in the [spacing rules](#place-a-live-mirror)). Turn on `Tiled` on both and leave `Partner` empty.
 2. Place `BP_MirrorTileLive` tiles across them, centred between the two faces, with thickness about the gap. For example, scale (1.5, 0.06, 2.0) is a 150 × 200 cm tile for a 6 cm gap.
 3. Set each tile's `Wall` to the front mirror and `BackWall` to the back mirror. A tile without `BackWall` shows plain metal on its back.
 
@@ -225,8 +224,8 @@ Each player's game renders mirrors from their own camera, so everyone sees a cor
 
 | Path (`/Game/Mods/MirrorKit/`) | Assets |
 | --- | --- |
-| `Blueprints/` | `BP_CaptureMirror`; map actors `BP_MirrorKitSettings`, `BP_MirrorKitBudget`; runtime `BP_MirrorKitManager` (spawned automatically by the first mirror); presets `BP_Mirror_Funhouse`, `BP_Mirror_Headless`, `BP_Mirror_StretchHead`, `BP_Mirror_Ghost`; tiles `BP_MirrorTileLive`, `BP_MirrorTile`, `BP_MirrorTile_NoSnow`; stand-ins `BP_MirrorDoubleFull`, `BP_MirrorDouble`, `BP_MirrorDoubleStretch` (spawned automatically); profile data asset class `BP_MirrorProfile`; quality data asset class `BP_MirrorQuality`; `BP_MirrorKitNet` (spawned on a server whose map options include mirror options); enums `E_MirrorResolutionProfile`, `E_MirrorStaggerMode`, `E_MirrorSettingsSource` |
-| `Quality/` | MirrorQuality presets `MQ_Off`, `MQ_Low`, `MQ_Medium`, `MQ_High`, `MQ_Ultra` |
+| `Blueprints/` | `BP_CaptureMirror`; map actors `BP_MirrorKitSettings`, `BP_MirrorKitBudget`; runtime `BP_MirrorKitManager` (spawned automatically by the first mirror); presets `BP_Mirror_Funhouse`, `BP_Mirror_Headless`, `BP_Mirror_StretchHead`, `BP_Mirror_Ghost`; tiles `BP_MirrorTileLive`, `BP_MirrorTile`, `BP_MirrorTile_NoSnow`; stand-ins `BP_MirrorDoubleFull`, `BP_MirrorDouble`, `BP_MirrorDoubleStretch` (spawned automatically); profile data asset class `BP_MirrorProfile`; quality data asset class `BP_MirrorQuality`; `BP_MirrorKitNet` (spawned on a server whose map options include mirror options); enums `E_MirrorStaggerMode`, `E_MirrorSettingsSource` |
+| `Quality/` | MirrorQuality presets `MQ_Off`, `MQ_Low`, `MQ_Medium`, `MQ_High`, `MQ_Ultra`, `MQ_Omega` |
 | `Profiles/` | MirrorProfiles `MP_MirrorMaze` (MirrorMaze schedule), `MP_HighDetail` |
 | `Materials/` | `M_MirrorEnvironment`, `M_MirrorPolished` (screen-space only), `M_MirrorDarkCenter`, `M_MirrorCracked`; internal: `M_CaptureMirror`, `M_Matte`, `M_MirrorOff` (mirrors switched off) |
 | `Meshes/` | `SM_MirrorTile`, `SM_MirrorTile_Cracked`; internal: `SM_MKCube`, `SM_MirrorTileCore` |
@@ -241,7 +240,7 @@ Open `BP_CaptureMirror`. EventGraph resolves the settings, finds the manager and
 | Category | Functions |
 | --- | --- |
 | Lifecycle | `InitializeMirror`, `UpdateMirror`, `SyncWithManager` |
-| Setup | `ResolveSettings` (first at BeginPlay), `SnapshotQualityBase`, `EnsureManager`, `ApplyManagerQuality`, `ReadManagerBudget`, `ApplyQualityValues`, `ApplyQualityCaps`, `ApplyMirrorsOff`, `RefreshMirrorTransform`, `ConfigureBackingAndDepth`, `ConfigureTileMode`, `InitializeCaptureResources`, `InitializeFirstCapture`, `InitializeDeepCapture`, `EnsurePlayerStandIn` |
+| Setup | `ResolveSettings` (first at BeginPlay), `SnapshotQualityBase`, `EnsureManager`, `ApplyManagerQuality`, `ReadManagerBudget`, `ApplyQualityValues`, `ApplyQualityCaps`, `ApplyMirrorsOff`, `RefreshMirrorTransform`, `ConfigureBacking`, `ConfigureTileMode`, `InitializeCaptureResources`, `InitializeFirstCapture`, `InitializeDeepCapture`, `EnsurePlayerStandIn` |
 | Scheduling | `ResolvePartner`, `UpdateCaptureBudget`, `AdvanceCaptureSchedule`, `CheckCaptureEligibility`, `IsWithinFaceDistance`, `DistanceToMirrorFace` |
 | Capture | `CaptureReflectionStack`, `CapturePortalFirst`, `CapturePortalDeep`, `CaptureLegacyView` |
 | Projection | `ReflectViewAcrossPlane`, `ProjectMirrorRay`, `FitMirrorInterval`, `ComputeVisibleMirrorBounds` (pure maths) |

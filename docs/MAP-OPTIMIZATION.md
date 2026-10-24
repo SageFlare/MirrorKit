@@ -64,7 +64,7 @@ Use time, not frames, and let a budget trim the far mirrors:
 | --- | --- | --- |
 | `TargetUpdateRate` | 90 | ~every 3 frames at 300 FPS, every frame at 60 FPS (frame-based every-2 is only 30 updates/s at a 60 FPS cap; testers saw it as choppy) |
 | `CaptureBudget` | 2 | captures per frame across the map; stretches far, off-centre mirrors when the load is higher |
-| `BudgetFocusDistance` / `BudgetFocusAngle` | 800 cm / 15° (defaults) | mirrors near you or near the view centre keep their pace (without focus, budgets looked choppy in bouts) |
+| `BudgetFocusDistance` / `BudgetFocusAngle` | 800 cm / 15° (defaults) | mirrors near you or near the view centre keep their pace while `FocusExemptFromBudget` is on (without focus, budgets looked choppy in bouts) |
 | `MinUpdateRate` | 30 | the budget never pushes a mirror below 30 updates/s (at a 60 FPS cap that means at most every 2nd frame) |
 | `FocusUpdateRate` | 144 | focused mirrors (near or central) update faster, against sideways jitter at high uncapped FPS (free below about 216 FPS, where 144/s is already every frame) |
 
@@ -92,7 +92,7 @@ Judge smoothness on the display you play on: on a 60 Hz screen, uncapped FPS mai
 | `DisableReflectionAO` | about −1 ms standing in early tests (every-frame updates); overlaps with resolution | not noticeable in mirrors | on by default |
 | `CaptureDistance` 15 m | −1.75 ms walking | distant mirrors visibly **freeze** | prefer staggering and merging; keep the default 25 m unless the layout hides distant mirrors |
 | `MaxViewDistance` | small (+6-9 FPS at 25-15 m from a ~40 FPS baseline, older kit) | removes distant geometry from reflections | rarely worth it in closed layouts |
-| `Depth` above 1 (partners) | each level is another full render | infinite-tunnel effect | use only where the effect is the point |
+| `Partners` on (partnered mirrors) | each mirror of a working pair renders one extra inner reflection, at half its update rate and sized to the screen | tunnel effect | use only where the effect is the point; off in every preset except `Omega` |
 
 `CaptureDistance` and `DistanceStaggerStart` measure to the nearest point of the mirror face, so long mirrors stay live near their ends.
 
@@ -102,6 +102,24 @@ Judge smoothness on the display you play on: on a 60 Hz screen, uncapped FPS mai
 - Mirrors behind the player, or outside the view, still count while they appear in other reflections; mirrors drawn nowhere stop after `VisibilityTolerance`.
 - Mirrors inside the view but hidden behind walls can still capture when they appear in a reflection; the engine does not tell Blueprints about main-view occlusion. Breaking long sight lines between mirrors helps.
 - Decorative surfaces that do not need a live player reflection should use baked tiles (`BP_MirrorTile`) or `M_MirrorEnvironment` instead of live mirrors.
+
+## 6. Partners and reflection size (kit 0.8.5-0.8.7, measured on Mirror Maze with 20 partner pairs)
+
+Same route, uncapped, single runs each (identical builds differ by about 7 % on the mean):
+
+| Kit | FPS mean | p5 | 1 % low | worst dip |
+| --- | --- | --- | --- | --- |
+| 0.8.2 (fixed-size reflections) | 312 | 284 | 193 | 155 |
+| 0.8.6 (sized to screen coverage) | 330-353 | 265-298 | 218-239 | 111-120 |
+| 0.8.7 (inner reflection on its own frame) | 379 | 332 | 260 | 173 |
+| 0.8.7 with `FocusUpdateRate` 90 | 408 | 368 | 285 | 205 |
+
+- Sizing reflections to screen coverage helps every mirror, partnered or not: small and distant mirrors get small targets.
+- A lower in-game resolution scale raises the average but not the dips, which are not about pixel count.
+- Partner walls you stand near are "focused" (they skip the budget and update at `FocusUpdateRate`, 144/s by default). That is a large share of their steady cost. 90/s cuts it further, at the risk of slight sideways judder above about 200 FPS.
+- The deepest dips came from a pair's two renders landing in one frame. Since 0.8.7, the inner reflection renders at half rate on a frame of its own; it did not look choppier in testing.
+- One-off ~1 s dips (worst moment about a third of the average FPS) remain with mirrors, partners or not; a map without mirrors has only shallower ones. Counting focused mirrors in the budget (`FocusExemptFromBudget` off) lifts the average 3-6 % but not these dips.
+- Known limits: a resized reflection leaves its old render target to garbage collection (freeing it at once would stall rendering), so video memory can run above the live targets until the next collection; and an inner reflection queued for its own frame can still render once after you look away (at most a few frames later).
 
 ## How these numbers were measured
 

@@ -26,13 +26,21 @@ Example: with `-MirrorQuality=Low` in your launch options and `?MirrorQuality=Hi
 
 ## Presets
 
-| Preset | Resolution | Updates per second | Nearest mirrors | Distance | Captures per frame | Reflection AO | Smoothing | Anchor |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `Ultra` | 1.0 | 144 | every frame | 40 m | no budget | on | on | off |
-| `High` | 0.5 | 90 | 144 | 25 m | 2 | off | on | off |
-| `Medium` | 0.5 | 60 | 60 | 20 m | 3 | off | on | off |
-| `Low` | 0.35 | 45 | 45 | 15 m | 2 | off | on | off |
-| `Off` | no live reflections; mirrors show plain dark glass | | | | | | | |
+| Preset | Resolution | Updates per second | Nearest mirrors | Distance | Captures per frame | Reflection AO | Smoothing | Anchor | Partners |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `Omega` | 1.0 | 144 | every frame | 40 m | no budget | on | on | off | on |
+| `Ultra` | 1.0 | 144 | every frame | 40 m | no budget | on | on | off | off |
+| `High` | 0.5 | 90 | 144 | 25 m | 2 | off | on | off | off |
+| `Medium` | 0.5 | 60 | 60 | 20 m | 3 | off | on | off | off |
+| `Low` | 0.35 | 45 | 45 | 15 m | 2 | off | on | off | off |
+| `Off` | no live reflections; mirrors show plain dark glass | | | | | | | | |
+
+**Partners** are facing mirror pairs a map maker linked for a tunnel effect (a reflection inside a reflection). They cost extra (each mirror of a working pair renders one extra inner reflection, at half its update rate and sized to the screen), so only `Omega` turns them on. To keep a preset and add partners, follow it with the single value: `?MirrorQuality=High?MirrorPartners=1` (server) or `-MirrorQuality=High -MirrorPartners=1` (your own game). Maps without partnered mirrors look the same in `Omega` and `Ultra`. To switch on only partners and keep everything else as the map sets it, use `?MirrorPartners=1` (server) or `-MirrorPartners=1` (your own game).
+
+| Partners on (Mirror Maze, `?MirrorPartners=1`) | Partners off (Mirror Maze default) |
+| --- | --- |
+| ![Partners on](../images/partners-on.png) | ![Partners off](../images/partners-off.png) |
+| Facing mirrors show each other correctly: the reflection inside the reflection continues the corridor (the tunnel on the right). | Each mirror reflects on its own; reflections of other mirrors are approximate, so the geometry inside them looks wrong. |
 
 Server map options `?MirrorQuality=` and `?MirrorMaxQuality=` accept built-in names or the path of a custom `BP_MirrorQuality` asset installed on the host. The host loads and checks the preset, applies inline settings, and sends only the resulting numeric values and flags to clients. Clients do not need the custom preset PAK. Missing or wrong-type presets contribute no values; inline settings still apply.
 
@@ -46,7 +54,7 @@ The same keys work as launch options (`-Key=`) and as server values (`?Key=`). T
 
 | Key | Value | Changes |
 | --- | --- | --- |
-| `MirrorResolution` | e.g. `0.5`, `1`; at most `2` | Reflection resolution: a fixed size per mirror, not a share of your screen (1 = 1280 × 720, 2 = 2560 × 1440). Values above 2 act as 2 |
+| `MirrorResolution` | e.g. `0.5`, `1`; at most `2` | Largest reflection size (1 = 1280 × 720, 2 = 2560 × 1440). Each reflection is sized to the part of your screen it covers and never exceeds what the game renders (your screen x the in-game resolution scale), so a high value costs only where a mirror is large on screen. Values above 2 act as 2 |
 | `MirrorRate` | updates per second, e.g. `90`; `0` = every N frames | How often mirrors update |
 | `MirrorFocusRate` | updates per second; `1000` = every frame | How often the nearest and most central mirrors update |
 | `MirrorDistance` | cm, e.g. `2500` | Mirrors farther than this stop updating |
@@ -54,6 +62,8 @@ The same keys work as launch options (`-Key=`) and as server values (`?Key=`). T
 | `MirrorAO` | `0` off, `1` on | Ambient occlusion inside reflections |
 | `MirrorSmooth` | `0` off, `1` on | Steady update interval when FPS fluctuates |
 | `MirrorAnchor` | `0` off, `1` on | Count each interval from the last update |
+| `MirrorPartners` | `0` off, `1` on | Partnered mirror tunnels (a reflection inside a reflection) |
+| `MirrorFocusExempt` | `0` no, `1` yes | Whether nearby and central mirrors skip the capture budget (yes by default). `0` lets the budget slow them too: smoother worst frames, nearby reflections may update less often. Presets keep the map's choice |
 | `MirrorsOff` | (no value; launch option only) | Turn live reflections off |
 
 ## Server cap
@@ -68,6 +78,7 @@ The same keys work as launch options (`-Key=`) and as server values (`?Key=`). T
 | `?MirrorMaxDistance=2000` | Capture distance (cm) |
 | `?MirrorMaxCaptures=3` | Captures per frame |
 | `?MirrorNoAO` | Turns reflection AO off |
+| `?MirrorNoPartners` | Turns partnered mirror tunnels off (any `?MirrorMaxQuality=` preset except `Omega` does too) |
 | `?MirrorsOff` | Turns live reflections off |
 
 When several limits apply, the strictest wins.
