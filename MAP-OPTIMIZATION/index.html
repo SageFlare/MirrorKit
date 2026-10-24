@@ -1,0 +1,1067 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Reusable live reflections, mirror variants, shiny surfaces and breakable mirror tiles for Chivalry 2 Unchained maps.">
+      
+      
+      
+        <link rel="canonical" href="https://sageflare.github.io/MirrorKit/MAP-OPTIMIZATION/">
+      
+      
+        <link rel="prev" href="../MAP-MAKING/">
+      
+      
+        <link rel="next" href="../CHANGELOG/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/MirrorPak.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Map performance - MirrorKit</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Volkhov:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Volkhov";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../javascripts/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="amber" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#designing-maps-for-mirror-performance" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="MirrorKit" class="md-header__button md-logo" aria-label="MirrorKit" data-md-component="logo">
+      
+  <img src="../assets/images/MirrorPak.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MirrorKit
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Map performance
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="amber" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="amber" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SageFlare/MirrorKit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="MirrorKit" class="md-nav__button md-logo" aria-label="MirrorKit" data-md-component="logo">
+      
+  <img src="../assets/images/MirrorPak.png" alt="logo">
+
+    </a>
+    MirrorKit
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SageFlare/MirrorKit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUALITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MAP-MAKING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Making a map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Map performance
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Map performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-one-rule-count-captures-not-mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The one rule: count captures, not mirrors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-bake-your-lighting-biggest-single-gain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Bake your lighting (biggest single gain)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-use-fewer-longer-mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Use fewer, longer mirrors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-update-every-other-frame-staggered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Update every other frame, staggered
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3b-recommended-schedule-for-mirror-heavy-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3b. Recommended schedule for mirror-heavy maps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3c-smoothness-at-high-frame-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3c. Smoothness at high frame rates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-settings-worth-knowing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Settings worth knowing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-layout-habits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Layout habits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-partners-and-reflection-size-kit-085-087-measured-on-mirror-maze-with-20-partner-pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Partners and reflection size (kit 0.8.5-0.8.7, measured on Mirror Maze with 20 partner pairs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-these-numbers-were-measured" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How these numbers were measured
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Version history
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-one-rule-count-captures-not-mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The one rule: count captures, not mirrors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-bake-your-lighting-biggest-single-gain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Bake your lighting (biggest single gain)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-use-fewer-longer-mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Use fewer, longer mirrors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-update-every-other-frame-staggered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Update every other frame, staggered
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3b-recommended-schedule-for-mirror-heavy-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3b. Recommended schedule for mirror-heavy maps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3c-smoothness-at-high-frame-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3c. Smoothness at high frame rates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-settings-worth-knowing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Settings worth knowing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-layout-habits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Layout habits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-partners-and-reflection-size-kit-085-087-measured-on-mirror-maze-with-20-partner-pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Partners and reflection size (kit 0.8.5-0.8.7, measured on Mirror Maze with 20 partner pairs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-these-numbers-were-measured" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How these numbers were measured
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/SageFlare/MirrorKit/edit/main/docs/MAP-OPTIMIZATION.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="designing-maps-for-mirror-performance">Designing maps for mirror performance<a class="headerlink" href="#designing-maps-for-mirror-performance" title="Permanent link">&para;</a></h1>
+<p>Chivalry 2 is competitive, and many players run 144-240+ FPS. Every live mirror renders the scene again, so a mirror-heavy map can lose a lot of frame rate. This guide covers what a map designer can do about it. The advice is based on measurements on <a href="https://github.com/SageFlare/MirrorMaze">MirrorMaze</a>, listed at the end.</p>
+<h2 id="the-one-rule-count-captures-not-mirrors">The one rule: count captures, not mirrors<a class="headerlink" href="#the-one-rule-count-captures-not-mirrors" title="Permanent link">&para;</a></h2>
+<p>Each time a live mirror updates, it renders the scene once. That is a <em>capture</em>. Frame time grows with the number of <strong>captures per frame</strong>. Mirror size and render-target resolution matter much less.</p>
+<ul>
+<li>Measured: roughly <strong>0.2-0.3 ms per capture</strong> on the test PC (Resolution 0.35-0.5). FPS followed captures-per-frame second by second.</li>
+<li>Lowering resolution from 0.5 to 0.35 saved only about 0.14 ms per frame once captures were reduced.</li>
+</ul>
+<p>Everything below reduces captures, makes each capture cheaper, or spreads captures evenly across frames.</p>
+<h2 id="1-bake-your-lighting-biggest-single-gain">1. Bake your lighting (biggest single gain)<a class="headerlink" href="#1-bake-your-lighting-biggest-single-gain" title="Permanent link">&para;</a></h2>
+<p>Movable lights are recalculated in <strong>every</strong> view, so each mirror capture redoes the lighting. With static (baked) lights, walls and floors read precomputed light maps, which is cheap in the main view and in every capture.</p>
+<ul>
+<li>Measured: <strong>+23% walking, +31% standing</strong> (243 → 298 and 239 → 313 FPS on the test PC). Captures per frame stayed the same; each one just got cheaper.</li>
+<li>How:</li>
+<li>Set lights to <strong>Static</strong>.</li>
+<li>In World Settings, turn off <strong>Force No Precomputed Lighting</strong>.</li>
+<li>Make sure meshes have a lightmap UV channel.</li>
+<li>Build lighting.</li>
+<li>Set decoration meshes without lightmap UVs (unlit trims, decals, floor guides) to <strong>Movable</strong>.</li>
+<li>Shadows on static lights are free at runtime. Turning them on gives real dark corners and contact shadows.</li>
+<li>Large single meshes (a whole floor or ceiling) get coarse light maps that show as soft squares and grain. Some find this adds character; split the mesh into tiles if you want it smooth.</li>
+<li>Trade-offs: lights cannot change in game. Players are lit from stored light samples rather than direct light, so they look slightly flatter.</li>
+<li>General baking pitfall, not mirror-specific: overlapping faces in the same plane (for example a wall running into a pillar of equal width) flicker once baked.</li>
+<li>Do not try to switch lights off only inside mirrors. Chivalry 2 is a shipping build, and the engine ignores light-type show flags there.</li>
+</ul>
+<h2 id="2-use-fewer-longer-mirrors">2. Use fewer, longer mirrors<a class="headerlink" href="#2-use-fewer-longer-mirrors" title="Permanent link">&para;</a></h2>
+<p>A wall built from several mirror pieces captures once per piece. One mirror covering the same flat run captures once.</p>
+<ul>
+<li>Measured on a 463-piece maze:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Merge</th>
+<th>Mirrors</th>
+<th>Walking FPS</th>
+<th>Standing FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>None</td>
+<td>463</td>
+<td>223</td>
+<td>220</td>
+</tr>
+<tr>
+<td>Touching pieces merged</td>
+<td>326</td>
+<td>246</td>
+<td>231</td>
+</tr>
+<tr>
+<td>Also merged across pillar and junction gaps</td>
+<td>243</td>
+<td><strong>252</strong></td>
+<td><strong>258</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Merging across pillar gaps cut captures per frame by 25-35%.
+- Pieces must lie in the same plane, face the same way and share their settings.
+- A mirror may run <strong>behind a pillar</strong>: the pillar hides that part, and reflections still show the pillar.
+- <strong>Do not run a mirror behind the end of a wall that meets the mirror face.</strong> The wall end sits inside the mirror's render-panel layer (the first few centimetres behind the face) and flickers, which is most visible with baked shadows. Split the mirror at such junctions instead.
+- Very long mirrors spread one render target over more wall, so they look slightly softer. Resolution 0.5 compensates cheaply.</p>
+<h2 id="3-update-every-other-frame-staggered">3. Update every other frame, staggered<a class="headerlink" href="#3-update-every-other-frame-staggered" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>UpdateEveryNFrames = 2</code> halves capture work. Measured: about −2.5 to −3.3 ms per frame (136 → 208 FPS walking at the time). Fast motion in reflections is slightly less smooth; testers noticed it only when looking for it.</li>
+<li>On its own, every mirror updates on the same frame, so frames alternate heavy and light, and the worst frames (1% low) do not improve.</li>
+<li>Add <code>StaggerMode = Distance</code> (or <code>Distributed</code>) to spread mirrors across frames. Measured: 1% low improved from about 110 to 138 FPS walking (187 standing), with the best average as well.</li>
+<li>Staggering is phase-based: <code>(FrameCounter + phase) % N == 0</code>, with the phase taken from the mirror's position. Since 0.6.0 the phase hash spreads grid-aligned mirrors evenly (the old one clustered them on one phase).</li>
+<li><strong>Large maps can be CPU-bound on Blueprint ticks.</strong> On MirrorMaze (263 mirrors) the off-screen test cost more processor time than it saved: turning it off gave +52 FPS standing and +32 walking, so 0.6.0 removed it. Captures had become cheap (about 0.085 ms each). Keep the lean tick (<code>ChecksEveryNFrames</code> 4, the default).</li>
+</ul>
+<h2 id="3b-recommended-schedule-for-mirror-heavy-maps">3b. Recommended schedule for mirror-heavy maps<a class="headerlink" href="#3b-recommended-schedule-for-mirror-heavy-maps" title="Permanent link">&para;</a></h2>
+<p>Since 0.6.0 these are the <strong>defaults</strong> of every mirror (plus <code>Resolution</code> 0.5, <code>StaggerMode</code> Distance and <code>DisableReflectionAO</code> on). Change them map-wide with <code>BP_MirrorKitSettings</code> (per-mirror settings) and <code>BP_MirrorKitBudget</code> (the budget rows below); see <em>Settings for many mirrors at once</em> in the <a href="../MAP-MAKING/">map-making guide</a>.</p>
+<p>Use time, not frames, and let a budget trim the far mirrors:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TargetUpdateRate</code></td>
+<td>90</td>
+<td>~every 3 frames at 300 FPS, every frame at 60 FPS (frame-based every-2 is only 30 updates/s at a 60 FPS cap; testers saw it as choppy)</td>
+</tr>
+<tr>
+<td><code>CaptureBudget</code></td>
+<td>2</td>
+<td>captures per frame across the map; stretches far, off-centre mirrors when the load is higher</td>
+</tr>
+<tr>
+<td><code>BudgetFocusDistance</code> / <code>BudgetFocusAngle</code></td>
+<td>800 cm / 15° (defaults)</td>
+<td>mirrors near you or near the view centre keep their pace while <code>FocusExemptFromBudget</code> is on (without focus, budgets looked choppy in bouts)</td>
+</tr>
+<tr>
+<td><code>MinUpdateRate</code></td>
+<td>30</td>
+<td>the budget never pushes a mirror below 30 updates/s (at a 60 FPS cap that means at most every 2nd frame)</td>
+</tr>
+<tr>
+<td><code>FocusUpdateRate</code></td>
+<td>144</td>
+<td>focused mirrors (near or central) update faster, against sideways jitter at high uncapped FPS (free below about 216 FPS, where 144/s is already every frame)</td>
+</tr>
+</tbody>
+</table>
+<p>Measured on MirrorMaze (263 mirrors after merging): 327 FPS walking uncapped (every-2 without budget: ~291; no mirrors: ~379), 1% low ~207. At a 60 FPS cap, mirrors update 30-60 times a second at ~36 % GPU, and testers saw them as smooth. Keep <code>TargetUpdateRate</code> well below your usual FPS: with rounding, a mirror drops to every frame only below 1.5 × the rate.</p>
+<h2 id="3c-smoothness-at-high-frame-rates">3c. Smoothness at high frame rates<a class="headerlink" href="#3c-smoothness-at-high-frame-rates" title="Permanent link">&para;</a></h2>
+<p>Rate-based schedules make a mirror update every <code>round(FPS / rate)</code> frames, so the faster the PC, the more frames each reflection is held. Below about 135 FPS the default 90 updates/s is already every frame; jitter is a high-FPS question.</p>
+<table>
+<thead>
+<tr>
+<th>Finding</th>
+<th>Measured</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sideways strafing next to a mirror looked jittery uncapped (~300 FPS)</td>
+<td>walking: no focus 355, focus 144/s 315, focus every frame 281 FPS; 144 greatly reduced it, every frame removed it</td>
+<td><code>FocusUpdateRate</code> 144 by default; players/hosts raise it with <code>-MirrorFocusRate=1000</code> / <code>?MirrorFocusRate=1000</code></td>
+</tr>
+<tr>
+<td>The interval flipped between N and N+1 with frame-time noise near rounding boundaries, giving uneven gaps</td>
+<td>smoothed interval visibly steadier at ~0-3 % FPS uncapped, no cost at a 240 cap; an anchored cadence added no visible gain for ~2-5 %</td>
+<td><code>SmoothUpdateInterval</code> on (default), <code>AnchorUpdateCadence</code> optional</td>
+</tr>
+<tr>
+<td>Close first-person strafing still slightly choppy at 144/s above ~216 FPS</td>
+<td>confirmed by <code>-MirrorFocusRate=1000</code> (not resolution, not tick order)</td>
+<td>default kept at 144 by choice; Ultra preset = every frame</td>
+</tr>
+</tbody>
+</table>
+<p>0.6.0 also made the per-mirror Blueprint work cheaper (interval stored once per tick; one hidden manager for FPS smoothing, budget and quality). On MirrorMaze, same map and settings, uncapped, these changes alone gave +7 % standing (360 -&gt; 385 FPS), +3 % walking (320 -&gt; 330) and better 1 % lows.</p>
+<p>Judge smoothness on the display you play on: on a 60 Hz screen, uncapped FPS mainly lowers input latency, and a 60 (or 120/180) cap gives the cleanest picture because every mirror then updates every frame.</p>
+<h2 id="4-settings-worth-knowing">4. Settings worth knowing<a class="headerlink" href="#4-settings-worth-knowing" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Effect measured</th>
+<th>Visual cost</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Resolution</code> 0.5 → 0.35</td>
+<td>about +3% (8 FPS walking) after the steps above</td>
+<td>softer reflections</td>
+<td>0.5 is a good default; drop only if GPU-bound with many mirrors</td>
+</tr>
+<tr>
+<td><code>DisableReflectionAO</code></td>
+<td>about −1 ms standing in early tests (every-frame updates); overlaps with resolution</td>
+<td>not noticeable in mirrors</td>
+<td>on by default</td>
+</tr>
+<tr>
+<td><code>CaptureDistance</code> 15 m</td>
+<td>−1.75 ms walking</td>
+<td>distant mirrors visibly <strong>freeze</strong></td>
+<td>prefer staggering and merging; keep the default 25 m unless the layout hides distant mirrors</td>
+</tr>
+<tr>
+<td><code>MaxViewDistance</code></td>
+<td>small (+6-9 FPS at 25-15 m from a ~40 FPS baseline, older kit)</td>
+<td>removes distant geometry from reflections</td>
+<td>rarely worth it in closed layouts</td>
+</tr>
+<tr>
+<td><code>Partners</code> on (partnered mirrors)</td>
+<td>each mirror of a working pair renders one extra inner reflection, at half its update rate and sized to the screen</td>
+<td>tunnel effect</td>
+<td>use only where the effect is the point; off in every preset except <code>Omega</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>CaptureDistance</code> and <code>DistanceStaggerStart</code> measure to the nearest point of the mirror face, so long mirrors stay live near their ends.</p>
+<h2 id="5-layout-habits">5. Layout habits<a class="headerlink" href="#5-layout-habits" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Corners where two mirrors face each other keep both live even when one is only visible inside the other.</li>
+<li>Mirrors behind the player, or outside the view, still count while they appear in other reflections; mirrors drawn nowhere stop after <code>VisibilityTolerance</code>.</li>
+<li>Mirrors inside the view but hidden behind walls can still capture when they appear in a reflection; the engine does not tell Blueprints about main-view occlusion. Breaking long sight lines between mirrors helps.</li>
+<li>Decorative surfaces that do not need a live player reflection should use baked tiles (<code>BP_MirrorTile</code>) or <code>M_MirrorEnvironment</code> instead of live mirrors.</li>
+</ul>
+<h2 id="6-partners-and-reflection-size-kit-085-087-measured-on-mirror-maze-with-20-partner-pairs">6. Partners and reflection size (kit 0.8.5-0.8.7, measured on Mirror Maze with 20 partner pairs)<a class="headerlink" href="#6-partners-and-reflection-size-kit-085-087-measured-on-mirror-maze-with-20-partner-pairs" title="Permanent link">&para;</a></h2>
+<p>Same route, uncapped, single runs each (identical builds differ by about 7 % on the mean):</p>
+<table>
+<thead>
+<tr>
+<th>Kit</th>
+<th>FPS mean</th>
+<th>p5</th>
+<th>1 % low</th>
+<th>worst dip</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.8.2 (fixed-size reflections)</td>
+<td>312</td>
+<td>284</td>
+<td>193</td>
+<td>155</td>
+</tr>
+<tr>
+<td>0.8.6 (sized to screen coverage)</td>
+<td>330-353</td>
+<td>265-298</td>
+<td>218-239</td>
+<td>111-120</td>
+</tr>
+<tr>
+<td>0.8.7 (inner reflection on its own frame)</td>
+<td>379</td>
+<td>332</td>
+<td>260</td>
+<td>173</td>
+</tr>
+<tr>
+<td>0.8.7 with <code>FocusUpdateRate</code> 90</td>
+<td>408</td>
+<td>368</td>
+<td>285</td>
+<td>205</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Sizing reflections to screen coverage helps every mirror, partnered or not: small and distant mirrors get small targets.</li>
+<li>A lower in-game resolution scale raises the average but not the dips, which are not about pixel count.</li>
+<li>Partner walls you stand near are "focused" (they skip the budget and update at <code>FocusUpdateRate</code>, 144/s by default). That is a large share of their steady cost. 90/s cuts it further, at the risk of slight sideways judder above about 200 FPS.</li>
+<li>The deepest dips came from a pair's two renders landing in one frame. Since 0.8.7, the inner reflection renders at half rate on a frame of its own; it did not look choppier in testing.</li>
+<li>One-off ~1 s dips (worst moment about a third of the average FPS) remain with mirrors, partners or not; a map without mirrors has only shallower ones. Counting focused mirrors in the budget (<code>FocusExemptFromBudget</code> off) lifts the average 3-6 % but not these dips.</li>
+<li>Known limits: a resized reflection leaves its old render target to garbage collection (freeing it at once would stall rendering), so video memory can run above the live targets until the next collection; and an inner reflection queued for its own frame can still render once after you look away (at most a few frames later).</li>
+</ul>
+<h2 id="how-these-numbers-were-measured">How these numbers were measured<a class="headerlink" href="#how-these-numbers-were-measured" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Map:</strong> <a href="https://github.com/SageFlare/MirrorMaze">MirrorMaze</a> (463 mirror pieces at first, 263 after merging coplanar pieces; 81 point lights), one PC, solo, frame-rate cap off.</li>
+<li><strong>Machine:</strong> GPU NVIDIA GeForce RTX 4060 (8 GB, driver 32.0.16.1074 = 610.74); CPU Intel Core i7-14700F (20 cores / 28 threads); 32 GB RAM; Windows 11 Home (build 26200). Game: 1920 × 1080 fullscreen, VSync off, <code>sg.*</code> quality 3 (Epic) except foliage and shading 1, resolution scale 100 %. Values read on 2026-10-17 from Windows and <code>GameUserSettings.ini</code>; earlier measurements are assumed to use the same machine.</li>
+<li><strong>Recording:</strong> NVIDIA App performance logs. Each case is recorded as 30 s standing at spawn plus one fixed walking route, repeated in alternating order (2-3 rounds).</li>
+<li><strong>Telemetry:</strong> captures per frame come from each mirror's <code>CaptureCount</code>, read by test tools. Absolute FPS differs per PC; use the relative changes.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Step (cumulative, walking)</th>
+<th>FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baseline, every frame, Resolution 0.5</td>
+<td>136</td>
+</tr>
+<tr>
+<td>AO off + Resolution 0.35 ("Lite")</td>
+<td>144</td>
+</tr>
+<tr>
+<td>+ every 2 frames + Distance stagger</td>
+<td>222</td>
+</tr>
+<tr>
+<td>+ merged mirrors (243)</td>
+<td>252</td>
+</tr>
+<tr>
+<td>Resolution back to 0.5</td>
+<td>243</td>
+</tr>
+<tr>
+<td>+ baked static lighting</td>
+<td><strong>298</strong></td>
+</tr>
+<tr>
+<td>(no mirrors at all)</td>
+<td>379</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

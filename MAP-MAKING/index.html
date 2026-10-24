@@ -1,0 +1,1408 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Reusable live reflections, mirror variants, shiny surfaces and breakable mirror tiles for Chivalry 2 Unchained maps.">
+      
+      
+      
+        <link rel="canonical" href="https://sageflare.github.io/MirrorKit/MAP-MAKING/">
+      
+      
+        <link rel="prev" href="../QUALITY/">
+      
+      
+        <link rel="next" href="../MAP-OPTIMIZATION/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/MirrorPak.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Making a map - MirrorKit</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Volkhov:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Volkhov";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../javascripts/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="amber" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#making-a-map-with-mirrorkit" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="MirrorKit" class="md-header__button md-logo" aria-label="MirrorKit" data-md-component="logo">
+      
+  <img src="../assets/images/MirrorPak.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MirrorKit
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Making a map
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="amber" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="amber" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SageFlare/MirrorKit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="MirrorKit" class="md-nav__button md-logo" aria-label="MirrorKit" data-md-component="logo">
+      
+  <img src="../assets/images/MirrorPak.png" alt="logo">
+
+    </a>
+    MirrorKit
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SageFlare/MirrorKit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUALITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Making a map
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Making a map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mirrors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#making-a-map-with-mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Making a map with mirrors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Making a map with mirrors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-the-kit-in-argonsdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install the kit in ArgonSDK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#place-a-live-mirror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Place a live mirror
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-your-map-so-it-works-with-the-shared-pak" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build your map so it works with the shared PAK
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings-for-many-mirrors-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings for many mirrors at once
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-settings-pieces-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the settings pieces fit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mirror-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mirror settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-mirror-decides-to-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a mirror decides to update
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#partners-and-tunnels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partners and tunnels
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tiles-and-materials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tiles and materials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#online-play" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Online play
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-the-blueprints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading the Blueprints
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MAP-OPTIMIZATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Map performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Version history
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mirrors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#making-a-map-with-mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Making a map with mirrors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Making a map with mirrors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-the-kit-in-argonsdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install the kit in ArgonSDK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#place-a-live-mirror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Place a live mirror
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-your-map-so-it-works-with-the-shared-pak" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build your map so it works with the shared PAK
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings-for-many-mirrors-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings for many mirrors at once
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-settings-pieces-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the settings pieces fit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mirror-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mirror settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-mirror-decides-to-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a mirror decides to update
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#partners-and-tunnels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partners and tunnels
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tiles-and-materials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tiles and materials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#online-play" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Online play
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-the-blueprints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading the Blueprints
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/SageFlare/MirrorKit/edit/main/docs/MAP-MAKING.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="making-a-map-with-mirrorkit">Making a map with MirrorKit<a class="headerlink" href="#making-a-map-with-mirrorkit" title="Permanent link">&para;</a></h1>
+<p>Everything a map maker needs: installing the kit in ArgonSDK, placing mirrors, settings for many mirrors at once, the capture budget, breakable tiles and every mirror setting. Players and server hosts only need <a href="../QUALITY/">the quality options</a>. For mirror-heavy maps, also read <a href="../MAP-OPTIMIZATION/">designing maps for mirror performance</a>.</p>
+<h2 id="the-mirrors">The mirrors<a class="headerlink" href="#the-mirrors" title="Permanent link">&para;</a></h2>
+<p>All live mirrors are <code>BP_CaptureMirror</code> or one of its presets. Presets differ only in their settings, and every setting can be changed on any placed mirror.</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>What you see</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BP_CaptureMirror</code></td>
+<td>True reflection: your full body (moving legs, head, weapon in hand), other players and the room. With a facing <code>Partner</code>, an infinite-looking tunnel</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>BP_Mirror_Funhouse</code></td>
+<td>Magnified, gappy carnival look (<code>Style</code> Funhouse)</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>BP_Mirror_Headless</code></td>
+<td>Your reflection has no head; others look normal (<code>Body</code> Headless)</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>BP_Mirror_StretchHead</code></td>
+<td>Your head stretches as you look up and down (<code>Body</code> Stretch head; its own settings at <code>Resolution</code> 1, since the effect needs detail)</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>BP_Mirror_Ghost</code></td>
+<td>Your body is invisible; your weapons float (<code>Body</code> Ghost)</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>BP_MirrorTileLive</code> + two <code>Tiled</code> mirrors</td>
+<td>A wall of breakable tiles showing a live reflection on both faces; break one and walk through</td>
+<td>Medium (one reflection level)</td>
+</tr>
+<tr>
+<td><code>BP_MirrorTile</code> / <code>BP_MirrorTile_NoSnow</code></td>
+<td>Breakable tiles with a baked (still) reflection; the snow variant plays wind when broken</td>
+<td>Very low</td>
+</tr>
+<tr>
+<td><code>M_MirrorEnvironment</code></td>
+<td>Material: shiny metal with a baked image of the room, plus screen-space reflections at shallow angles</td>
+<td>Very low</td>
+</tr>
+<tr>
+<td><code>M_MirrorDarkCenter</code></td>
+<td>Material: reflects at shallow angles, black when looking straight at it</td>
+<td>Very low</td>
+</tr>
+</tbody>
+</table>
+<p>Every effect is per viewer. A ghost or headless mirror changes only <em>your own</em> reflection as <em>you</em> see it; other players see you normally in their mirrors.</p>
+<h2 id="making-a-map-with-mirrors">Making a map with mirrors<a class="headerlink" href="#making-a-map-with-mirrors" title="Permanent link">&para;</a></h2>
+<h3 id="install-the-kit-in-argonsdk">Install the kit in ArgonSDK<a class="headerlink" href="#install-the-kit-in-argonsdk" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Unzip <code>MirrorKit_Source.zip</code>.</li>
+<li>Copy its <code>Content</code> folder's contents to <strong><code>ArgonSDK/Content/Mods/MirrorKit/</code></strong>, so you get <code>ArgonSDK/Content/Mods/MirrorKit/Blueprints/BP_CaptureMirror.uasset</code>.
+   This location matters. Unreal names assets by folder (<code>/Game/Mods/MirrorKit/...</code>), and <code>MirrorKit.pak</code> loads them under the same names in game. Do not move or rename kit assets; your map would then point at assets the shared PAK does not contain. A folder link is fine.</li>
+<li>Copy <code>MirrorKit.pak</code> into your game's <code>TBL/Content/Paks/</code> to test.</li>
+</ol>
+<h3 id="place-a-live-mirror">Place a live mirror<a class="headerlink" href="#place-a-live-mirror" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Drag <code>BP_CaptureMirror</code> (or a preset) into the level.</li>
+<li>The mirror's <strong>local +X axis points out of its reflective face</strong>, and the face is at the actor's origin.</li>
+<li>Switch the transform gizmo to <strong>Local</strong> to see it.</li>
+<li>Turn wall mirrors with <strong>Rotation Z (Yaw)</strong>.</li>
+<li>Size it with the actor <strong>scale</strong>: Y × 100 = width in cm, Z × 100 = height in cm, and keep X = 1. For example, (1, 12, 6) is a 12 × 6 m mirror. For a floor mirror, rotate it to face up.</li>
+<li>Leave <code>Partner</code> empty for a normal mirror (see <a href="#partners-and-tunnels">Partners</a> for the tunnel effect).</li>
+<li><strong>Leave 4 cm clear behind the face</strong> (5 cm when the mirror has a <code>Partner</code>). The reflection layers live there; geometry inside that space flickers. Selecting a mirror shows an orange <code>ClearanceGuide</code> box over this space; it has no collision and is hidden in game.</li>
+<li>Mirrors are solid: the backing plate blocks players and weapons, except in <code>Tiled</code> mirrors, where the tiles collide. The back of a mirror shows plain metal. For a mirror wall that reflects on both sides, place a second mirror on the back facing the other way (see spacing below).</li>
+<li>Nothing else to place. The stand-ins that draw your body in reflections (<code>BP_MirrorDouble*</code>) spawn automatically.</li>
+</ol>
+<p><strong>Spacing rules</strong> (MirrorKit cannot move your geometry, so these are up to you):</p>
+<table>
+<thead>
+<tr>
+<th>Behind a mirror face</th>
+<th>Keep at least (without / with a <code>Partner</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Walls, floors, any map geometry</td>
+<td>4 / 5 cm (the orange box)</td>
+</tr>
+<tr>
+<td>Another mirror back to back (no wall between)</td>
+<td>5 / 6 cm between the two faces (the larger if only one has a partner)</td>
+</tr>
+<tr>
+<td>A wall between two back-to-back mirrors</td>
+<td>4 / 5 cm on each side of the wall (36 cm wall: faces 44 / 46 cm apart)</td>
+</tr>
+</tbody>
+</table>
+<p>Giving a mirror a <code>Partner</code> later means re-checking these gaps: a partnered mirror needs 1 cm more behind the face.</p>
+<h3 id="build-your-map-so-it-works-with-the-shared-pak">Build your map so it works with the shared PAK<a class="headerlink" href="#build-your-map-so-it-works-with-the-shared-pak" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Use your own meshes and materials for structure.</strong> Place only kit actors and kit mirror materials. A player without MirrorKit then still gets a playable map instead of holes in it.</li>
+<li><strong>Your PAK must not contain MirrorKit's files.</strong> Cooking your map also writes cooked kit files to <code>Saved/Cooked/.../Content/Mods/MirrorKit/</code>; package only your own mod folder.</li>
+<li><strong>Keep the kit's enums out of native conversion.</strong> If your project uses Blueprint nativization:</li>
+<li>Add <code>/Game/Mods/MirrorKit/Blueprints/E_MirrorStaggerMode</code>, <code>/Game/Mods/MirrorKit/Blueprints/E_MirrorSettingsSource</code>, <code>/Game/Mods/MirrorKit/Blueprints/E_MirrorStyle</code> and <code>/Game/Mods/MirrorKit/Blueprints/E_MirrorBody</code> as <code>+ExcludedAssets</code> under <code>[BlueprintNativizationSettings]</code> in <code>Config/DefaultEditor.ini</code>.</li>
+<li>Otherwise UE 4.25 can leave them out of the PAK.</li>
+<li>Recook referring maps after changing this.</li>
+<li>Add MirrorKit as a dependency in your <code>mod.json</code>.</li>
+</ul>
+<h2 id="settings-for-many-mirrors-at-once">Settings for many mirrors at once<a class="headerlink" href="#settings-for-many-mirrors-at-once" title="Permanent link">&para;</a></h2>
+<p>Every mirror works with no extra setup: its defaults are the schedule tuned on MirrorMaze (half resolution, 90 updates per second). The mirror, <code>BP_MirrorKitSettings</code> and new profiles start from the <strong>same</strong> values, so placing a settings actor changes nothing until you edit it. The capture budget is the exception: it is off unless the map has a <code>BP_MirrorKitBudget</code>, and placing one turns it on (budget 2 captures per frame by default).</p>
+<p>Two optional map actors, both in <code>Blueprints/</code> (drag each in at most once; they have no mesh or collision and players never see them):</p>
+<table>
+<thead>
+<tr>
+<th>Actor</th>
+<th>Sets</th>
+<th>Applies to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>BP_MirrorKitSettings</code></strong></td>
+<td>the per-mirror performance settings below</td>
+<td>mirrors with <code>SettingsSource</code> <code>MapDefault</code> (and <code>Profile</code> mirrors without a profile)</td>
+</tr>
+<tr>
+<td><strong><code>BP_MirrorKitBudget</code></strong></td>
+<td>the budget: <code>CaptureBudget</code>, <code>CaptureBudgetMaxMultiplier</code>, <code>MinUpdateRate</code>, <code>BudgetFocusDistance</code>, <code>BudgetFocusAngle</code></td>
+<td><strong>every</strong> mirror, whatever its <code>SettingsSource</code> (the budget is shared by the whole map)</td>
+</tr>
+</tbody>
+</table>
+<p>Each mirror picks where its per-mirror settings come from with <strong><code>SettingsSource</code></strong> (category <em>MirrorKit › Settings</em>):</p>
+<table>
+<thead>
+<tr>
+<th><code>SettingsSource</code></th>
+<th>The mirror uses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MapDefault</code> (default)</td>
+<td>the map's <code>BP_MirrorKitSettings</code>; its own values if the map has none</td>
+</tr>
+<tr>
+<td><code>Profile</code></td>
+<td>the <strong>MirrorProfile</strong> data asset in its <code>Profile</code> slot; with no profile assigned, the map's settings actor</td>
+</tr>
+<tr>
+<td><code>Own</code></td>
+<td>its own values</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Whole map:</strong> edit <code>BP_MirrorKitSettings</code> (or leave it out and keep the defaults).</li>
+<li><strong>Groups:</strong> right-click in the Content Browser › <em>Miscellaneous › Data Asset</em> › <code>BP_MirrorProfile</code> to make a profile. Set <code>SettingsSource</code> to <code>Profile</code> on the group and pick it; editing the profile changes the whole group. Shipped: <code>Profiles/MP_MirrorMaze</code> (the MirrorMaze schedule, so a group keeps it if you change the map settings) and <code>Profiles/MP_HighDetail</code> (full resolution at 120 updates/s).</li>
+<li><strong>One-offs:</strong> set <code>SettingsSource</code> to <code>Own</code> and edit that mirror.</li>
+<li><strong>Budget:</strong> edit <code>BP_MirrorKitBudget</code>; mirrors, profiles and settings actors never carry it. At runtime a hidden <code>BP_MirrorKitManager</code> (spawned automatically, nothing to place) applies it. Without a budget actor the budget is <strong>off</strong>. Placing one turns it on with its defaults (budget 2, max ×4, min 30 updates/s, focus 800 cm / 15°), visible and editable on the actor. To keep one mirror out of it (e.g. a showcase mirror), tick its <code>ExcludeFromBudget</code>.</li>
+</ul>
+<p>Per-mirror performance settings: <code>Resolution</code>, <code>UpdateEveryNFrames</code>, <code>TargetUpdateRate</code>, <code>FocusUpdateRate</code>, <code>StaggerMode</code>, <code>DistanceStaggerStart</code>, <code>CaptureDistance</code>, <code>MaxViewDistance</code>, <code>VisibilityTolerance</code>, <code>ChecksEveryNFrames</code>, <code>DisableReflectionAO</code>, <code>SmoothUpdateInterval</code>, <code>AnchorUpdateCadence</code>, <code>FocusExemptFromBudget</code>, plus the look settings <code>InfiniteTail</code> and <code>Partners</code>. Body, <code>Partner</code> and tile settings stay on each mirror; a MapDefault mirror takes all of the above from <code>BP_MirrorKitSettings</code>, so set <code>Partners</code> there (or use a profile) rather than on single mirrors. Settings are resolved when the match starts; player and server quality choices are applied on top (again if the server options arrive later).</p>
+<p><strong>For a single sharp, every-frame mirror</strong> (the defaults before 0.6.0), set <code>SettingsSource</code> <code>Own</code>, <code>Resolution</code> 1, <code>TargetUpdateRate</code> 0, <code>UpdateEveryNFrames</code> 1, <code>StaggerMode</code> None, <code>DisableReflectionAO</code> off, and <code>ExcludeFromBudget</code> on.</p>
+<h2 id="how-the-settings-pieces-fit">How the settings pieces fit<a class="headerlink" href="#how-the-settings-pieces-fit" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>Who makes it</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BP_MirrorKitSettings</code></td>
+<td>map maker (placed, one per map)</td>
+<td>default look and schedule for every <code>MapDefault</code> mirror</td>
+</tr>
+<tr>
+<td><code>BP_MirrorProfile</code></td>
+<td>map maker (data asset)</td>
+<td>the same settings for a group of mirrors (<code>SettingsSource</code> = <code>Profile</code>)</td>
+</tr>
+<tr>
+<td><code>BP_MirrorKitBudget</code></td>
+<td>map maker (placed, optional)</td>
+<td>budget rules; without it the budget is off</td>
+</tr>
+<tr>
+<td><code>BP_MirrorQuality</code> (<code>MQ_*</code>)</td>
+<td>kit / anyone (data assets)</td>
+<td>MirrorQuality presets for players and servers</td>
+</tr>
+<tr>
+<td><code>BP_MirrorKitManager</code></td>
+<td>spawned automatically by the first mirror, every machine</td>
+<td>reads the budget actor and the quality options once, smooths the FPS and runs the budget each frame</td>
+</tr>
+<tr>
+<td><code>BP_MirrorKitNet</code></td>
+<td>spawned automatically on a server whose map options include mirror options</td>
+<td>carries the server options to clients</td>
+</tr>
+</tbody>
+</table>
+<p>Each mirror: own values, then <code>BP_MirrorKitSettings</code> or its profile (<code>ResolveSettings</code>), then the manager's quality layers and budget rules; afterwards it only re-reads when the manager reports a change.</p>
+<h2 id="mirror-settings">Mirror settings<a class="headerlink" href="#mirror-settings" title="Permanent link">&para;</a></h2>
+<p>All settings are on every placed mirror. The performance defaults are the MirrorMaze schedule (see above for the sharp, every-frame values used before 0.6.0). With <code>SettingsSource</code> <code>MapDefault</code> or <code>Profile</code>, the per-mirror performance settings come from the settings actor or profile when there is one; the budget is not a mirror setting (see the budget table below).</p>
+<p><strong>Look and body</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Style</code></td>
+<td>True</td>
+<td><strong>True:</strong> a true reflection. <strong>Floor:</strong> for large floor mirrors seen from above, sharper looking straight down (keep nothing below the mirror). <strong>Funhouse:</strong> magnified carnival look with gaps at the edges. Floor and Funhouse render their front reflection at full screen size (the most expensive kind)</td>
+</tr>
+<tr>
+<td><code>Body</code></td>
+<td>Full body</td>
+<td>Your body in this mirror: <strong>Full body</strong>, <strong>Head only</strong> (head and torso, stiff head), <strong>Stretch head</strong> (head stretches as you look up and down), <strong>Headless</strong>, or <strong>Ghost</strong> (invisible body, weapons float). Other players always look normal</td>
+</tr>
+<tr>
+<td><code>FitVisible</code></td>
+<td>on</td>
+<td>Render only the part of the mirror inside your view (sharper close up; <code>Style</code> True and Floor)</td>
+</tr>
+<tr>
+<td><code>Tiled</code></td>
+<td>off</td>
+<td>The mirror is invisible and walk-through; tiles show its reflection</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Partners</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Partner</code></td>
+<td>none</td>
+<td>Facing mirror for the tunnel effect; empty = independent mirror. Needs 5 cm clear behind the face (<a href="#place-a-live-mirror">spacing rules</a>)</td>
+</tr>
+<tr>
+<td><code>Partners</code></td>
+<td>on</td>
+<td>A mirror with a <code>Partner</code> renders the geometric tunnel: two levels, its own reflection and the partner's reflection inside it (each mirror of a working pair renders one extra inner reflection, at half its update rate and sized to the screen). No effect without a <code>Partner</code>. Off = the pair renders like independent mirrors. Map settings, profile or mirror; servers and players can switch it (<a href="../QUALITY/">quality options</a>). Both mirrors of a pair must point at each other and get <code>Partners</code> the same way (same <code>SettingsSource</code>; same <code>Profile</code>, or the same value when <code>Own</code>). MapDefault mirrors on a map without <code>BP_MirrorKitSettings</code> use their own values, so they also need the same value. The red box updates when a mirror is edited (not when a settings actor is added or removed, or a sublevel loads later), so treat it as a hint and re-select the pair after such changes. Otherwise a red box shows over the mirror in the editor, a warning is logged, and in play the pair renders as two independent mirrors</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resolution</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Resolution</code></td>
+<td>0.5</td>
+<td>The largest render target a reflection may use: 1 = 1280 × 720, the default 0.5 = 640 × 360. Each reflection is sized to how much of your screen it covers (about one target pixel per screen pixel), never above this and never above the size the game renders (screen size x the in-game resolution scale), so small or distant mirrors cost less and large partner walls get their inner reflection at up to the full size. Sizes step by about ×1.4, grow at once and shrink after a second. Maximum 2.0 (2560 × 1440); higher values, from any source, act as 2.0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Performance</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UpdateEveryNFrames</code></td>
+<td>2</td>
+<td>Update every N frames (used when <code>TargetUpdateRate</code> is 0); skipped frames reuse the last reflection. 2 roughly halves capture work</td>
+</tr>
+<tr>
+<td><code>StaggerMode</code></td>
+<td>Distance</td>
+<td>Spread updates across frames: <code>Distributed</code> (all mirrors) or <code>Distance</code> (mirrors at or beyond <code>DistanceStaggerStart</code>). Needed with N &gt; 1 to keep worst-case frames smooth</td>
+</tr>
+<tr>
+<td><code>DistanceStaggerStart</code></td>
+<td>1000 cm</td>
+<td>Face distance where <code>Distance</code> staggering begins</td>
+</tr>
+<tr>
+<td><code>CaptureDistance</code></td>
+<td>2500 cm</td>
+<td>Stop updating beyond this face distance (the mirror keeps its last image)</td>
+</tr>
+<tr>
+<td><code>MaxViewDistance</code></td>
+<td>0</td>
+<td>Limit how far each capture renders into the reflected scene; 0 = unlimited</td>
+</tr>
+<tr>
+<td><code>VisibilityTolerance</code></td>
+<td>0.2 s</td>
+<td>Stop updating when neither this mirror nor its partner has been drawn for this long</td>
+</tr>
+<tr>
+<td><code>DisableReflectionAO</code></td>
+<td>on</td>
+<td>Skip ambient occlusion inside this mirror's reflections (cheaper, rarely visible)</td>
+</tr>
+<tr>
+<td><code>TargetUpdateRate</code></td>
+<td>90 (0 = off)</td>
+<td>Target reflection updates per second; when set, replaces <code>UpdateEveryNFrames</code> with <code>round(FPS ÷ rate)</code> frames, at least 1 (e.g. 90: every 3 frames at 300 FPS, every frame at 60). Below about 1.5 × the rate (135 FPS for 90/s) every update is every frame</td>
+</tr>
+<tr>
+<td><code>FocusUpdateRate</code></td>
+<td>144 (0 = off)</td>
+<td>Updates per second for focused mirrors: face within 800 cm or centre within 15° of your view (the budget actor's <code>BudgetFocusDistance</code>/<code>BudgetFocusAngle</code> when one is placed). Keeps close reflections smooth at high uncapped FPS, where 90/s holds each reflection for several frames. Costs nothing below about 135 FPS (90/s is already every frame there); 1000 = every frame. Players can change it with MirrorQuality (<code>-MirrorFocusRate=</code>); a server cap can limit it</td>
+</tr>
+<tr>
+<td><code>ChecksEveryNFrames</code></td>
+<td>4</td>
+<td>Run the expensive per-mirror checks (distance, focus) only on the mirror's due frames and otherwise every N frames; 1 = every frame</td>
+</tr>
+<tr>
+<td><code>SmoothUpdateInterval</code></td>
+<td>on</td>
+<td>Base the update interval on the FPS averaged over ~0.5 s and keep it until the FPS clearly moves, so it does not flip with frame-time noise. Removes most jitter at fluctuating or uncapped FPS (measured: about 0-3 % FPS uncapped, none at a 240 cap)</td>
+</tr>
+<tr>
+<td><code>AnchorUpdateCadence</code></td>
+<td>off</td>
+<td>Optional: count each interval from the mirror's last update, so a changed interval never produces one short or long gap (off = fixed slots <code>(FrameCounter + phase) % N</code>). No visible gain over smoothing alone in our tests and about 2-5 % FPS uncapped, so it is off by default; worth trying on PCs where smoothing alone still judders</td>
+</tr>
+<tr>
+<td><code>InfiniteTail</code></td>
+<td>off</td>
+<td>Partnered mirrors: past the second (last exact) level, show the partner's own current reflection instead of dark glass, so the tunnel keeps going (approximate, no extra renders)</td>
+</tr>
+<tr>
+<td><code>FocusExemptFromBudget</code></td>
+<td>on</td>
+<td>Mirrors near you or near the centre of your view (the budget's focus distance and angle) keep their pace while the capture budget slows the others. Off: the budget slows them too, which smooths the worst frames when many mirrors are close at once, at the cost of nearby reflections updating less often under load. Servers and players can switch it (<code>MirrorFocusExempt</code>)</td>
+</tr>
+<tr>
+<td><code>ExcludeFromBudget</code></td>
+<td>off</td>
+<td>Keep this mirror out of the map-wide budget: never counted and never slowed down by it</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Budget</strong> (map-wide, on <code>BP_MirrorKitBudget</code>; off without one; defaults below are the actor's)</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CaptureBudget</code></td>
+<td>2 (0 = off)</td>
+<td>Target captures per frame across all mirrors; when the smoothed load is over it, every mirror's interval is stretched (mirrors with <code>ExcludeFromBudget</code> are left out)</td>
+</tr>
+<tr>
+<td><code>CaptureBudgetMaxMultiplier</code></td>
+<td>4</td>
+<td>Largest interval stretch the budget may apply</td>
+</tr>
+<tr>
+<td><code>MinUpdateRate</code></td>
+<td>30 (0 = off)</td>
+<td>The capture budget never stretches a mirror below this many updates per second</td>
+</tr>
+<tr>
+<td><code>BudgetFocusDistance</code></td>
+<td>800 cm</td>
+<td>While the budget is stretching intervals, mirrors whose face is this close keep their normal interval (0 = off)</td>
+</tr>
+<tr>
+<td><code>BudgetFocusAngle</code></td>
+<td>15°</td>
+<td>While the budget is stretching intervals, mirrors whose centre is within this angle of your view direction (0 = off)</td>
+</tr>
+</tbody>
+</table>
+<p>"Face distance" means the camera's distance to the nearest point of the mirror, not to its centre.</p>
+<h2 id="how-a-mirror-decides-to-update">How a mirror decides to update<a class="headerlink" href="#how-a-mirror-decides-to-update" title="Permanent link">&para;</a></h2>
+<p>Each frame, a mirror goes through three steps:</p>
+<ol>
+<li><strong>Schedule.</strong> Every tick increments <code>FrameCounter</code>. An update is due when <code>(FrameCounter + phase) % N == 0</code>; with <code>AnchorUpdateCadence</code> (optional), after the first update it is due when <code>N</code> frames have passed since the last one.</li>
+<li><code>N</code> is <code>round(FPS ÷ TargetUpdateRate)</code> (at least 1; with <code>SmoothUpdateInterval</code> the FPS is averaged over ~0.5 s and <code>N</code> changes only when the ratio is 0.65 or more away from it), or <code>UpdateEveryNFrames</code> when the rate is 0. Focused mirrors use <code>FocusUpdateRate</code> instead when that gives a shorter interval. Unfocused mirrors are then multiplied by the capture-budget multiplier (1 when <code>CaptureBudget</code> is off), never below <code>MinUpdateRate</code>.</li>
+<li><code>phase</code> is 0 unless the mirror is staggered (or the budget multiplier is above 1); then it is <code>floor(PhaseHash × N)</code>. <code>PhaseHash</code> is computed once at start-up from the mirror's position (<code>Fraction(Sin(0.0129898X + 0.078233Y + 0.037719Z) × 43758.5453)</code>), which spreads grid-aligned mirrors evenly.</li>
+<li><strong>Capture budget</strong> (<code>CaptureBudget</code> &gt; 0): mirrors report their captures to the hidden <code>BP_MirrorKitManager</code>. Once a frame it smooths the total, and at most every 0.2 s steps a shared multiplier up (load over budget) or down (the load at one step lower would fit the budget), from 1 to <code>CaptureBudgetMaxMultiplier</code>. While the multiplier is above 1, <em>focused</em> mirrors (face within <code>BudgetFocusDistance</code>, or centre inside the <code>BudgetFocusAngle</code> view cone) keep their unstretched interval, so the mirrors you look at stay smooth.</li>
+<li><strong>Eligibility.</strong> All of these must hold:</li>
+<li>you have a local camera;</li>
+<li>the face distance is under <code>CaptureDistance</code>;</li>
+<li>you are in front of the face;</li>
+<li>the mirror (or its partner) was drawn within <code>VisibilityTolerance</code>.</li>
+</ol>
+<p>"Drawn" includes being seen inside another mirror. Distances check the centre distance first and compute the exact nearest point only when needed.
+3. <strong>Capture.</strong> Level 1 is rendered (fitted to the visible part with <code>FitVisible</code>), then deeper partner levels.</p>
+<p>Independent mirrors show other mirrors' images inside their reflection. Those images were rendered for your own viewpoint, so mirror-in-mirror repetitions are plausible but not geometrically exact. Partners give exact nested reflections, at the cost of one render per level.</p>
+<p><code>DisableReflectionAO</code> works through a stored post-process override (AO intensity 0) whose blend weight the checkbox raises at start-up.</p>
+<p>A mirror's size, settings, position and facing are read when play starts (the camera is read once per tick). Do not resize live mirrors at runtime; after moving or turning one at runtime, call its <code>RefreshMirrorTransform</code>.</p>
+<h2 id="partners-and-tunnels">Partners and tunnels<a class="headerlink" href="#partners-and-tunnels" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Set two facing mirrors as each other's <code>Partner</code> for a tunnel: each shows its own reflection and the partner's reflection inside it (two exact levels; more looked no different in our tests). Set relationships before play starts.</li>
+<li>With <code>InfiniteTail</code> on, the tunnel continues past the second level with approximate reflections instead of ending dark.</li>
+<li><code>Partners</code> (on by default) switches the tunnel; Each mirror of a working pair renders one extra inner reflection, at half its update rate and sized to the screen. The built-in quality presets other than <code>Omega</code> switch partners off, so on a server or for a player who picks <code>Low</code> to <code>Ultra</code> the pair renders like independent mirrors. Leave it on in your map settings if the tunnel is the point of the map, or off if the map should be cheap by default and the tunnel opt-in (<code>Omega</code>, <code>?MirrorPartners=1</code>).</li>
+<li>Partners do not have to be parallel: each reflection is computed across each mirror's own plane.</li>
+<li>A mirror on the back of a wall is an ordinary mirror, so it takes its own <code>Partner</code>.</li>
+<li><strong>Partners are mutual pairs.</strong> Each mirror of a pair names the other as its <code>Partner</code>. Chains or one-sided links (A → B → C → A) are not supported: those mirrors render as independent mirrors, and the editor shows the red box.</li>
+</ul>
+<h2 id="tiles-and-materials">Tiles and materials<a class="headerlink" href="#tiles-and-materials" title="Permanent link">&para;</a></h2>
+<p><strong>Breakable live tiles</strong></p>
+<ol>
+<li>Place a <code>BP_CaptureMirror</code> covering the wall's front, and a second one back to back covering its back (facing the other way, spaced as in the <a href="#place-a-live-mirror">spacing rules</a>). Turn on <code>Tiled</code> on both and leave <code>Partner</code> empty.</li>
+<li>Place <code>BP_MirrorTileLive</code> tiles across them, centred between the two faces, with thickness about the gap. For example, scale (1.5, 0.06, 2.0) is a 150 × 200 cm tile for a 6 cm gap.</li>
+<li>Set each tile's <code>Wall</code> to the front mirror and <code>BackWall</code> to the back mirror. A tile without <code>BackWall</code> shows plain metal on its back.</li>
+</ol>
+<p>A broken tile disappears on both faces and leaves a walk-through hole, with one health bar per tile.</p>
+<p><strong>Baked tiles.</strong> Place <code>BP_MirrorTile</code> (snow wind on break) or <code>BP_MirrorTile_NoSnow</code> and scale to the tile size. They use <code>SM_MirrorTile</code> and <code>SM_MirrorTile_Cracked</code> by default, and never show players. To match your room's shine, use your own environment material instance on their <code>StaticMesh</code>.</p>
+<p><strong>Environment material.</strong> <code>M_MirrorEnvironment</code> shows a baked 360° image (cubemap) where screen-space reflections have nothing. To match your room:</p>
+<ol>
+<li>Place a Scene Capture Cube at the surface, at head height.</li>
+<li>Assign a Cube Render Target and capture.</li>
+<li>Right-click the render target and choose <strong>Create Static Texture</strong>.</li>
+<li>Create a Material Instance of <code>M_MirrorEnvironment</code> in your map's folder and set <code>Environment</code> (plus <code>EnvStrength</code>, <code>Tint</code> and <code>Roughness</code> if wanted).</li>
+<li>Apply it, then delete the capture actor.</li>
+</ol>
+<h2 id="online-play">Online play<a class="headerlink" href="#online-play" title="Permanent link">&para;</a></h2>
+<p>Each player's game renders mirrors from their own camera, so everyone sees a correct reflection. Your stand-in exists only on your machine; other players see your real body. Breakable tiles use the game's own breakable windows: the server decides when a tile breaks, and everyone sees it. Dedicated servers do no mirror rendering and spawn no stand-ins.</p>
+<h2 id="contents">Contents<a class="headerlink" href="#contents" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Path (<code>/Game/Mods/MirrorKit/</code>)</th>
+<th>Assets</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Blueprints/</code></td>
+<td><code>BP_CaptureMirror</code>; map actors <code>BP_MirrorKitSettings</code>, <code>BP_MirrorKitBudget</code>; runtime <code>BP_MirrorKitManager</code> (spawned automatically by the first mirror); presets <code>BP_Mirror_Funhouse</code>, <code>BP_Mirror_Headless</code>, <code>BP_Mirror_StretchHead</code>, <code>BP_Mirror_Ghost</code>; tiles <code>BP_MirrorTileLive</code>, <code>BP_MirrorTile</code>, <code>BP_MirrorTile_NoSnow</code>; stand-ins <code>BP_MirrorDoubleFull</code>, <code>BP_MirrorDouble</code>, <code>BP_MirrorDoubleStretch</code> (spawned automatically); profile data asset class <code>BP_MirrorProfile</code>; quality data asset class <code>BP_MirrorQuality</code>; <code>BP_MirrorKitNet</code> (spawned on a server whose map options include mirror options); enums <code>E_MirrorStaggerMode</code>, <code>E_MirrorSettingsSource</code>, <code>E_MirrorStyle</code>, <code>E_MirrorBody</code></td>
+</tr>
+<tr>
+<td><code>Quality/</code></td>
+<td>MirrorQuality presets <code>MQ_Off</code>, <code>MQ_Low</code>, <code>MQ_Medium</code>, <code>MQ_High</code>, <code>MQ_Ultra</code>, <code>MQ_Omega</code></td>
+</tr>
+<tr>
+<td><code>Profiles/</code></td>
+<td>MirrorProfiles <code>MP_MirrorMaze</code> (MirrorMaze schedule), <code>MP_HighDetail</code></td>
+</tr>
+<tr>
+<td><code>Materials/</code></td>
+<td><code>M_MirrorEnvironment</code>, <code>M_MirrorPolished</code> (screen-space only), <code>M_MirrorDarkCenter</code>, <code>M_MirrorCracked</code>; internal: <code>M_CaptureMirror</code>, <code>M_Matte</code>, <code>M_MirrorOff</code> (mirrors switched off)</td>
+</tr>
+<tr>
+<td><code>Meshes/</code></td>
+<td><code>SM_MirrorTile</code>, <code>SM_MirrorTile_Cracked</code>; internal: <code>SM_MKCube</code>, <code>SM_MirrorTileCore</code></td>
+</tr>
+<tr>
+<td><code>Textures/</code></td>
+<td><code>TC_MK_DefaultEnvironment</code> (default cubemap)</td>
+</tr>
+</tbody>
+</table>
+<p>Release files: <code>MirrorKit.pak</code> (+ <code>.sha256</code>), <code>MirrorKit_Source.zip</code> (<code>Content/</code>, README, <code>mod.json</code>, license and third-party notices), <code>README.md</code>.</p>
+<h2 id="reading-the-blueprints">Reading the Blueprints<a class="headerlink" href="#reading-the-blueprints" title="Permanent link">&para;</a></h2>
+<p>Open <code>BP_CaptureMirror</code>. EventGraph resolves the settings, finds the manager and applies its quality, then routes to <code>InitializeMirror</code>; Tick goes to <code>UpdateMirror</code>; double-click the calls to follow the work. Each function's tooltip says what it does; inside larger functions, comment boxes mark each step (what that group of nodes does). <code>BP_MirrorKitManager</code>, the tile and the stand-in Blueprints follow the same style. Functions are grouped by category:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Functions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lifecycle</td>
+<td><code>InitializeMirror</code>, <code>UpdateMirror</code>, <code>SyncWithManager</code></td>
+</tr>
+<tr>
+<td>Setup</td>
+<td><code>ResolveSettings</code> (first at BeginPlay), <code>SnapshotQualityBase</code>, <code>EnsureManager</code>, <code>ApplyManagerQuality</code>, <code>ReadManagerBudget</code>, <code>ApplyQualityValues</code>, <code>ApplyQualityCaps</code>, <code>ApplyMirrorsOff</code>, <code>RefreshMirrorTransform</code>, <code>ConfigureBacking</code>, <code>ConfigureTileMode</code>, <code>InitializeCaptureResources</code>, <code>InitializeFirstCapture</code>, <code>InitializeDeepCapture</code>, <code>EnsurePlayerStandIn</code></td>
+</tr>
+<tr>
+<td>Scheduling</td>
+<td><code>ResolvePartner</code>, <code>UpdateCaptureBudget</code>, <code>AdvanceCaptureSchedule</code>, <code>CheckCaptureEligibility</code>, <code>IsWithinFaceDistance</code>, <code>DistanceToMirrorFace</code></td>
+</tr>
+<tr>
+<td>Capture</td>
+<td><code>CaptureReflectionStack</code>, <code>CapturePortalFirst</code>, <code>CapturePortalDeep</code>, <code>CaptureLegacyView</code></td>
+</tr>
+<tr>
+<td>Projection</td>
+<td><code>ReflectViewAcrossPlane</code>, <code>ProjectMirrorRay</code>, <code>FitMirrorInterval</code>, <code>ComputeVisibleMirrorBounds</code> (pure maths)</td>
+</tr>
+<tr>
+<td>Visibility</td>
+<td><code>RefreshCaptureHiddenActors</code>, <code>HideActorFromActiveCaptures</code>, <code>HidePartnerPanelsForCapture</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>BP_MirrorKitManager</code>: <code>FilterServerOptions</code> (resolves presets on the host and serializes only numeric settings and flags), <code>ApplyServerOptions</code> (parses the quality layers), <code>ResolveBudget</code> (reads <code>BP_MirrorKitBudget</code>), and a Tick that smooths the FPS and steps the budget multiplier.</p>
+<p><strong>Capture count.</strong> Each mirror counts its captures in <code>CaptureCount</code>. The capture budget uses it: each tick a budgeted mirror reports its captures since the last report to <code>BP_MirrorKitManager</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
